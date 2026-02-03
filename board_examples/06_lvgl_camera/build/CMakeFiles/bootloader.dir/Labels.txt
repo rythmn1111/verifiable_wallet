@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/CMakeFiles/bootloader
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/CMakeFiles/bootloader.rule
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/CMakeFiles/bootloader-complete.rule
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/Volumes/rythmn103/code/esp/ESP32-S3-Touch-LCD-3.5-Demo/ESP-IDF/06_lvgl_camera/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
