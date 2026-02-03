@@ -94,6 +94,7 @@ void esp_3inch5_display_port_init(esp_lcd_panel_io_handle_t *io_handle, esp_lcd_
     esp_lcd_new_panel_st7796(*io_handle, &panel_config, panel_handle);
     ESP_ERROR_CHECK(esp_lcd_panel_reset(*panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(*panel_handle));
+    /* Many ST7796 boards need true for correct (non-negative) colors */
     ESP_ERROR_CHECK(esp_lcd_panel_invert_color(*panel_handle, true));
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(*panel_handle, true));
     

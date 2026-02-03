@@ -120,12 +120,12 @@ dependencies:
     version: 5.5.0
   lvgl/lvgl:
     component_hash: 
-      d7c1ac037ae6e85d94897f807d6e7ba0946a83e720074fc95a4f6241da9f9f53
+      2a8f619b5c2b1c7ad116c33d43dae8989c76739068f406a7e8ba9221e1085f17
     dependencies: []
     source:
       registry_url: https://components.espressif.com/
       type: service
-    version: 8.4.0
+    version: 9.1.0
 direct_dependencies:
 - espressif/button
 - espressif/esp32-camera
@@ -135,6 +135,6 @@ direct_dependencies:
 - espressif/quirc
 - idf
 - lvgl/lvgl
-manifest_hash: 0f264d3bdf51d274afe716d8ed5996ec5eb3c6a2e58a3b60db3cf75af2670598
+manifest_hash: f3c4cb40317a61c3f76000f4a8221080230d42edb3c583449be2ca1655d7731c
 target: esp32s3
 version: 2.0.0
