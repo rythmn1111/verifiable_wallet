@@ -1,30 +1,4 @@
 dependencies:
-  espressif/button:
-    component_hash: 
-      fccb18c37f1cfe0797b74a53a44d3f400f5fd01f4993b40052dfb7f401915089
-    dependencies:
-    - name: espressif/cmake_utilities
-      registry_url: https://components.espressif.com
-      require: private
-      version: '*'
-    - name: idf
-      require: private
-      version: '>=4.0'
-    source:
-      registry_url: https://components.espressif.com/
-      type: service
-    version: 4.1.5
-  espressif/cmake_utilities:
-    component_hash: 
-      05165f30922b422b4b90c08845e6d449329b97370fbd06309803d8cb539d79e3
-    dependencies:
-    - name: idf
-      require: private
-      version: '>=4.1'
-    source:
-      registry_url: https://components.espressif.com
-      type: service
-    version: 1.1.1
   espressif/esp32-camera:
     component_hash: 
       f0a608b109935a5389221eee5090ec61f51b0df1a0749531fe59d33aaf263233
@@ -103,17 +77,6 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 2.7.0
-  espressif/quirc:
-    component_hash: 
-      3be250a06364f0d71a7903b66ac93084d2ce3998c2e75a168b9f1f0621dd6218
-    dependencies:
-    - name: idf
-      require: private
-      version: '>=4.3.0'
-    source:
-      registry_url: https://components.espressif.com/
-      type: service
-    version: 1.2.0
   idf:
     source:
       type: idf
@@ -127,14 +90,12 @@ dependencies:
       type: service
     version: 9.1.0
 direct_dependencies:
-- espressif/button
 - espressif/esp32-camera
 - espressif/esp_io_expander_tca9554
 - espressif/esp_lcd_touch
 - espressif/esp_lvgl_port
-- espressif/quirc
 - idf
 - lvgl/lvgl
-manifest_hash: f3c4cb40317a61c3f76000f4a8221080230d42edb3c583449be2ca1655d7731c
+manifest_hash: f656b6c56e63d7bce0c385f9f2e01d3ea781eabf4ea159d9eeff16f41232ffc8
 target: esp32s3
 version: 2.0.0

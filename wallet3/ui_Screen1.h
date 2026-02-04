@@ -10,22 +10,25 @@
 extern "C" {
 #endif
 
+// SCREEN: ui_Screen1
 extern void ui_Screen1_screen_init(void);
 extern void ui_Screen1_screen_destroy(void);
-extern void ui_event_Screen1(lv_event_t *e);
+extern void ui_event_Screen1( lv_event_t * e);
 extern lv_obj_t *ui_Screen1;
 extern lv_obj_t *ui_time;
 extern lv_obj_t *ui_Image1;
-extern void ui_event_Panel1(lv_event_t *e);
+extern void ui_event_Panel1( lv_event_t * e);
 extern lv_obj_t *ui_Panel1;
 extern lv_obj_t *ui_aoprice;
 extern lv_obj_t *ui_arprice;
 extern lv_obj_t *ui_personname;
 extern lv_obj_t *ui_arrow;
 extern lv_obj_t *ui_whichscreenmark;
+// CUSTOM VARIABLES
 
 #ifdef __cplusplus
-}
+} /*extern "C"*/
 #endif
 
 #endif
+

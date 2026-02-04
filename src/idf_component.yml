@@ -5,5 +5,3 @@ dependencies:
   espressif/esp_io_expander_tca9554: "^2.0.0"
   espressif/esp_lvgl_port: "^2.5.0"
   espressif/esp32-camera: "*"
-  espressif/button: "^4.1.0"
-  espressif/quirc: "*"
