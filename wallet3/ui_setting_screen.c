@@ -5,8 +5,15 @@
 
 #include "ui.h"
 
-lv_obj_t *ui_setting_screen = NULL;lv_obj_t *ui_wifi = NULL;lv_obj_t *ui_Switch1 = NULL;
+lv_obj_t *ui_setting_screen = NULL;lv_obj_t *ui_wifi = NULL;lv_obj_t *ui_Switch1 = NULL;lv_obj_t *ui_home_button = NULL;
 // event funtions
+void ui_event_home_button( lv_event_t * e) {
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+if ( event_code == LV_EVENT_CLICKED) {
+      _ui_screen_change( &ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen1_screen_init);
+}
+}
 
 // build funtions
 
@@ -29,11 +36,30 @@ lv_obj_set_style_text_font(ui_wifi, &ui_font_Pixel, LV_PART_MAIN| LV_STATE_DEFAU
 lv_obj_set_style_transform_scale(ui_wifi, 350, LV_PART_MAIN| LV_STATE_DEFAULT);
 
 ui_Switch1 = lv_switch_create(ui_setting_screen);
-lv_obj_set_width( ui_Switch1, 50);
-lv_obj_set_height( ui_Switch1, 25);
-lv_obj_set_x( ui_Switch1, 98 );
+lv_obj_set_width( ui_Switch1, 77);
+lv_obj_set_height( ui_Switch1, 34);
+lv_obj_set_x( ui_Switch1, 94 );
 lv_obj_set_y( ui_Switch1, -205 );
 lv_obj_set_align( ui_Switch1, LV_ALIGN_CENTER );
+
+ui_home_button = lv_button_create(ui_setting_screen);
+lv_obj_set_width( ui_home_button, 49);
+lv_obj_set_height( ui_home_button, 47);
+lv_obj_set_x( ui_home_button, -6 );
+lv_obj_set_y( ui_home_button, 205 );
+lv_obj_set_align( ui_home_button, LV_ALIGN_CENTER );
+lv_obj_set_ext_click_area(ui_home_button, 8);
+lv_obj_add_flag( ui_home_button, LV_OBJ_FLAG_SCROLL_ON_FOCUS );   /// Flags
+lv_obj_remove_flag( ui_home_button, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
+lv_obj_set_style_radius(ui_home_button, 1000, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_bg_color(ui_home_button, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT );
+lv_obj_set_style_bg_opa(ui_home_button, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_shadow_color(ui_home_button, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT );
+lv_obj_set_style_shadow_opa(ui_home_button, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_shadow_width(ui_home_button, 10, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_shadow_spread(ui_home_button, 1, LV_PART_MAIN| LV_STATE_DEFAULT);
+
+lv_obj_add_event_cb(ui_home_button, ui_event_home_button, LV_EVENT_ALL, NULL);
 
 }
 
@@ -45,5 +71,6 @@ void ui_setting_screen_screen_destroy(void)
 ui_setting_screen= NULL;
 ui_wifi= NULL;
 ui_Switch1= NULL;
+ui_home_button= NULL;
 
 }

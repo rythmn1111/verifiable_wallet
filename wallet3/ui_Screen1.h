@@ -24,6 +24,8 @@ extern lv_obj_t *ui_arprice;
 extern lv_obj_t *ui_personname;
 extern lv_obj_t *ui_arrow;
 extern lv_obj_t *ui_whichscreenmark;
+extern lv_obj_t *ui_wifi_not_enable;
+extern lv_obj_t *ui_wifi_enable;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

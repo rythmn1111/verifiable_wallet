@@ -4,10 +4,89 @@
 // Project name: wallet3
 
 #include "../ui.h"
+#include "app_wifi.h"
+#include "ui_wifi_password_screen.h"
+#include <stdio.h>
+#include <string.h>
+
+#define WIFI_LIST_MAX 32
+#define WIFI_ROW_BUF_SIZE 64
+#define WIFI_SSID_MAX 32
+
+static void ui_event_network_item(lv_event_t *e)
+{
+	if (lv_event_get_code(e) != LV_EVENT_CLICKED)
+		return;
+	lv_obj_t *btn = lv_event_get_target(e);
+	const char *ssid = (const char *)lv_obj_get_user_data(btn);
+	if (ssid)
+		ui_wifi_password_screen_show(ssid);
+}
 
 lv_obj_t *ui_setting_screen = NULL;
 lv_obj_t *ui_wifi = NULL;
 lv_obj_t *ui_Switch1 = NULL;
+lv_obj_t *ui_network_list = NULL;
+lv_obj_t *ui_home_button = NULL;
+
+static void ui_event_home_button(lv_event_t *e)
+{
+	if (lv_event_get_code(e) == LV_EVENT_CLICKED)
+		_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen1_screen_init);
+}
+
+static void ui_event_Switch1(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		if (lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED))
+			app_wifi_scan_start();
+		else
+			app_wifi_scan_stop();
+	}
+}
+
+void ui_setting_screen_show_scanning(void)
+{
+	if (!ui_network_list)
+		return;
+	lv_obj_clean(ui_network_list);
+	lv_list_add_text(ui_network_list, "Scanning...");
+}
+
+void ui_setting_screen_show_networks(const char **ssids, const int8_t *rssis, uint16_t count)
+{
+	if (!ui_network_list)
+		return;
+	lv_obj_clean(ui_network_list);
+	if (count == 0)
+	{
+		lv_list_add_text(ui_network_list, "No networks found");
+		return;
+	}
+	static char row_buf[WIFI_ROW_BUF_SIZE];
+	static char ssid_store[WIFI_LIST_MAX][WIFI_SSID_MAX + 1];
+	for (uint16_t i = 0; i < count && i < WIFI_LIST_MAX; i++)
+	{
+		const char *ssid = ssids[i] ? ssids[i] : "";
+		int8_t rssi = rssis ? rssis[i] : 0;
+		snprintf(row_buf, sizeof(row_buf), "%s  %d dBm", ssid, (int)rssi);
+		lv_obj_t *btn = lv_list_add_button(ui_network_list, NULL, row_buf);
+		size_t len = strnlen(ssid, WIFI_SSID_MAX);
+		memcpy(ssid_store[i], ssid, len);
+		ssid_store[i][len] = '\0';
+		lv_obj_set_user_data(btn, ssid_store[i]);
+		lv_obj_add_event_cb(btn, ui_event_network_item, LV_EVENT_CLICKED, NULL);
+	}
+}
+
+void ui_setting_screen_clear_networks(void)
+{
+	if (!ui_network_list)
+		return;
+	lv_obj_clean(ui_network_list);
+}
 
 void ui_setting_screen_screen_init(void)
 {
@@ -28,11 +107,38 @@ void ui_setting_screen_screen_init(void)
 	lv_obj_set_style_transform_scale(ui_wifi, 350, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
 
 	ui_Switch1 = lv_switch_create(ui_setting_screen);
-	lv_obj_set_width(ui_Switch1, 50);
-	lv_obj_set_height(ui_Switch1, 25);
-	lv_obj_set_x(ui_Switch1, 98);
+	lv_obj_set_width(ui_Switch1, 77);
+	lv_obj_set_height(ui_Switch1, 34);
+	lv_obj_set_x(ui_Switch1, 94);
 	lv_obj_set_y(ui_Switch1, -205);
 	lv_obj_set_align(ui_Switch1, LV_ALIGN_CENTER);
+	lv_obj_add_event_cb(ui_Switch1, ui_event_Switch1, LV_EVENT_VALUE_CHANGED, NULL);
+
+	ui_network_list = lv_list_create(ui_setting_screen);
+	lv_obj_set_width(ui_network_list, 280);
+	lv_obj_set_height(ui_network_list, 320);
+	lv_obj_set_x(ui_network_list, 0);
+	lv_obj_set_y(ui_network_list, 20);
+	lv_obj_set_align(ui_network_list, LV_ALIGN_CENTER);
+
+	/* Home button: tap to go to home screen */
+	ui_home_button = lv_button_create(ui_setting_screen);
+	lv_obj_set_width(ui_home_button, 49);
+	lv_obj_set_height(ui_home_button, 47);
+	lv_obj_set_x(ui_home_button, -6);
+	lv_obj_set_y(ui_home_button, 205);
+	lv_obj_set_align(ui_home_button, LV_ALIGN_CENTER);
+	lv_obj_set_ext_click_area(ui_home_button, 8);
+	lv_obj_add_flag(ui_home_button, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+	lv_obj_remove_flag(ui_home_button, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_set_style_radius(ui_home_button, 1000, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_bg_color(ui_home_button, lv_color_hex(0xFFFFFF), (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_bg_opa(ui_home_button, LV_OPA_COVER, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_shadow_color(ui_home_button, lv_color_hex(0x000000), (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_shadow_opa(ui_home_button, LV_OPA_COVER, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_shadow_width(ui_home_button, 10, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_shadow_spread(ui_home_button, 1, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_add_event_cb(ui_home_button, ui_event_home_button, LV_EVENT_CLICKED, NULL);
 }
 
 void ui_setting_screen_screen_destroy(void)
@@ -42,4 +148,6 @@ void ui_setting_screen_screen_destroy(void)
 	ui_setting_screen = NULL;
 	ui_wifi = NULL;
 	ui_Switch1 = NULL;
+	ui_network_list = NULL;
+	ui_home_button = NULL;
 }

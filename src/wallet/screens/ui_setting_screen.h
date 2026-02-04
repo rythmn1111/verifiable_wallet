@@ -6,6 +6,8 @@
 #ifndef UI_SETTING_SCREEN_H
 #define UI_SETTING_SCREEN_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,6 +18,16 @@ extern lv_obj_t *ui_setting_screen;
 extern lv_obj_t *ui_wifi;
 extern lv_obj_t *ui_Switch1;
 extern lv_obj_t *ui_network_list;
+extern lv_obj_t *ui_home_button;
+
+/** Show "Scanning..." in the network list. Call from Wi-Fi task with LVGL lock held. */
+void ui_setting_screen_show_scanning(void);
+
+/** Fill the network list with SSIDs and RSSIs. Call from Wi-Fi task with LVGL lock held. */
+void ui_setting_screen_show_networks(const char **ssids, const int8_t *rssis, uint16_t count);
+
+/** Clear the network list. Call from Wi-Fi task with LVGL lock held. */
+void ui_setting_screen_clear_networks(void);
 
 #ifdef __cplusplus
 }

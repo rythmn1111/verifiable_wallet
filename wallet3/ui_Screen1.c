@@ -5,7 +5,7 @@
 
 #include "ui.h"
 
-lv_obj_t *ui_Screen1 = NULL;lv_obj_t *ui_time = NULL;lv_obj_t *ui_Image1 = NULL;lv_obj_t *ui_Panel1 = NULL;lv_obj_t *ui_aoprice = NULL;lv_obj_t *ui_arprice = NULL;lv_obj_t *ui_personname = NULL;lv_obj_t *ui_arrow = NULL;lv_obj_t *ui_whichscreenmark = NULL;
+lv_obj_t *ui_Screen1 = NULL;lv_obj_t *ui_time = NULL;lv_obj_t *ui_Image1 = NULL;lv_obj_t *ui_Panel1 = NULL;lv_obj_t *ui_aoprice = NULL;lv_obj_t *ui_arprice = NULL;lv_obj_t *ui_personname = NULL;lv_obj_t *ui_arrow = NULL;lv_obj_t *ui_whichscreenmark = NULL;lv_obj_t *ui_wifi_not_enable = NULL;lv_obj_t *ui_wifi_enable = NULL;
 // event funtions
 void ui_event_Screen1( lv_event_t * e) {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -37,8 +37,8 @@ lv_obj_set_style_bg_opa(ui_Screen1, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 ui_time = lv_label_create(ui_Screen1);
 lv_obj_set_width( ui_time, LV_SIZE_CONTENT);  /// 1
 lv_obj_set_height( ui_time, LV_SIZE_CONTENT);   /// 1
-lv_obj_set_x( ui_time, -21 );
-lv_obj_set_y( ui_time, -213 );
+lv_obj_set_x( ui_time, -56 );
+lv_obj_set_y( ui_time, -216 );
 lv_obj_set_align( ui_time, LV_ALIGN_CENTER );
 lv_label_set_text(ui_time,"12:30PM");
 lv_obj_set_style_text_font(ui_time, &ui_font_Pixel, LV_PART_MAIN| LV_STATE_DEFAULT);
@@ -112,6 +112,28 @@ lv_obj_set_style_text_align(ui_whichscreenmark, LV_TEXT_ALIGN_CENTER, LV_PART_MA
 lv_obj_set_style_text_font(ui_whichscreenmark, &ui_font_Pixel, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_transform_scale(ui_whichscreenmark, 450, LV_PART_MAIN| LV_STATE_DEFAULT);
 
+ui_wifi_not_enable = lv_image_create(ui_Screen1);
+lv_image_set_src(ui_wifi_not_enable, &ui_img_wifi_not_enable_png);
+lv_obj_set_width( ui_wifi_not_enable, LV_SIZE_CONTENT);  /// 1
+lv_obj_set_height( ui_wifi_not_enable, LV_SIZE_CONTENT);   /// 1
+lv_obj_set_x( ui_wifi_not_enable, 113 );
+lv_obj_set_y( ui_wifi_not_enable, -213 );
+lv_obj_set_align( ui_wifi_not_enable, LV_ALIGN_CENTER );
+lv_obj_add_flag( ui_wifi_not_enable, LV_OBJ_FLAG_CLICKABLE );   /// Flags
+lv_obj_remove_flag( ui_wifi_not_enable, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
+lv_image_set_scale(ui_wifi_not_enable,100);
+
+ui_wifi_enable = lv_image_create(ui_Screen1);
+lv_image_set_src(ui_wifi_enable, &ui_img_wifi_enable_png);
+lv_obj_set_width( ui_wifi_enable, LV_SIZE_CONTENT);  /// 1
+lv_obj_set_height( ui_wifi_enable, LV_SIZE_CONTENT);   /// 1
+lv_obj_set_x( ui_wifi_enable, 113 );
+lv_obj_set_y( ui_wifi_enable, -213 );
+lv_obj_set_align( ui_wifi_enable, LV_ALIGN_CENTER );
+lv_obj_add_flag( ui_wifi_enable, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE );   /// Flags
+lv_obj_remove_flag( ui_wifi_enable, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
+lv_image_set_scale(ui_wifi_enable,100);
+
 lv_obj_add_event_cb(ui_Panel1, ui_event_Panel1, LV_EVENT_ALL, NULL);
 lv_obj_add_event_cb(ui_Screen1, ui_event_Screen1, LV_EVENT_ALL, NULL);
 
@@ -131,5 +153,7 @@ ui_arprice= NULL;
 ui_personname= NULL;
 ui_arrow= NULL;
 ui_whichscreenmark= NULL;
+ui_wifi_not_enable= NULL;
+ui_wifi_enable= NULL;
 
 }

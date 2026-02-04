@@ -42,4 +42,5 @@ void ui_destroy( void )
 	ui_Screen1_screen_destroy();
 	ui_Screen2_screen_destroy();
 	ui_setting_screen_screen_destroy();
+	ui_wifi_password_screen_screen_destroy();
 }

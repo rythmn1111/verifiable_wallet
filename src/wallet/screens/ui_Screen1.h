@@ -23,6 +23,14 @@ extern lv_obj_t *ui_arprice;
 extern lv_obj_t *ui_personname;
 extern lv_obj_t *ui_arrow;
 extern lv_obj_t *ui_whichscreenmark;
+extern lv_obj_t *ui_wifi_not_enable;
+extern lv_obj_t *ui_wifi_enable;
+
+/** Update wifi icon on home screen. Call with 1 when connected, 0 when disconnected. */
+void ui_Screen1_set_wifi_connected(int connected);
+
+/** Update AO and AR price labels (e.g. "AO$0.15", "AR$23.50"). NULL = leave unchanged. */
+void ui_Screen1_set_prices(const char *ao_price, const char *ar_price);
 
 #ifdef __cplusplus
 }

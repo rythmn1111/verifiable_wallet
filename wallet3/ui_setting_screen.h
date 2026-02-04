@@ -16,6 +16,8 @@ extern void ui_setting_screen_screen_destroy(void);
 extern lv_obj_t *ui_setting_screen;
 extern lv_obj_t *ui_wifi;
 extern lv_obj_t *ui_Switch1;
+extern void ui_event_home_button( lv_event_t * e);
+extern lv_obj_t *ui_home_button;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

@@ -1,10 +1,13 @@
 SET(SOURCES ui_Screen1.c
     ui_Screen2.c
     ui_setting_screen.c
+    ui_wifi_password_screen.c
     ui.c
     ui_comp_hook.c
     ui_helpers.c
     ui_img_profile2_png.c
+    ui_img_wifi_not_enable_png.c
+    ui_img_wifi_enable_png.c
     ui_img_settingsicon_png.c
     fonts/ui_font_Pixel.c)
 

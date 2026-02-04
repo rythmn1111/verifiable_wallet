@@ -25,3 +25,10 @@ CONFIG_SPIRAM_CS_IO=26
 CONFIG_LV_COLOR_16_SWAP=y
 CONFIG_LV_MEM_CUSTOM=y
 CONFIG_LV_USE_LOG=n
+
+# TLS: allow skip server cert verify if no other option set (for HTTPS e.g. CoinGecko)
+CONFIG_ESP_TLS_INSECURE=y
+CONFIG_ESP_TLS_SKIP_SERVER_CERT_VERIFY=y
+
+# CA certificate bundle for proper HTTPS verification (CoinGecko etc.)
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=y

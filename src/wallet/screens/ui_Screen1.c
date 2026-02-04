@@ -7,6 +7,7 @@
 #include "../ui.h"
 #include <time.h>
 #include <stdio.h>
+#include <string.h>
 
 lv_obj_t *ui_Screen1 = NULL;
 lv_obj_t *ui_time = NULL;
@@ -17,8 +18,41 @@ lv_obj_t *ui_arprice = NULL;
 lv_obj_t *ui_personname = NULL;
 lv_obj_t *ui_arrow = NULL;
 lv_obj_t *ui_whichscreenmark = NULL;
+lv_obj_t *ui_wifi_not_enable = NULL;
+lv_obj_t *ui_wifi_enable = NULL;
 
 static lv_timer_t *s_time_timer = NULL;
+
+#define UI_PRICE_BUF_SIZE 24
+static char s_ao_price_buf[UI_PRICE_BUF_SIZE] = "";
+static char s_ar_price_buf[UI_PRICE_BUF_SIZE] = "";
+
+void ui_Screen1_set_wifi_connected(int connected)
+{
+	if (ui_wifi_not_enable && ui_wifi_enable) {
+		if (connected) {
+			lv_obj_add_flag(ui_wifi_not_enable, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_remove_flag(ui_wifi_enable, LV_OBJ_FLAG_HIDDEN);
+		} else {
+			lv_obj_remove_flag(ui_wifi_not_enable, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(ui_wifi_enable, LV_OBJ_FLAG_HIDDEN);
+		}
+	}
+}
+
+void ui_Screen1_set_prices(const char *ao_price, const char *ar_price)
+{
+	if (ao_price && ui_aoprice) {
+		lv_label_set_text(ui_aoprice, ao_price);
+		strncpy(s_ao_price_buf, ao_price, UI_PRICE_BUF_SIZE - 1);
+		s_ao_price_buf[UI_PRICE_BUF_SIZE - 1] = '\0';
+	}
+	if (ar_price && ui_arprice) {
+		lv_label_set_text(ui_arprice, ar_price);
+		strncpy(s_ar_price_buf, ar_price, UI_PRICE_BUF_SIZE - 1);
+		s_ar_price_buf[UI_PRICE_BUF_SIZE - 1] = '\0';
+	}
+}
 
 #define UI_TIME_BUF_SIZE 32
 
@@ -53,6 +87,11 @@ void ui_event_Panel1(lv_event_t *e)
 	if (event_code == LV_EVENT_CLICKED) {
 		_ui_flag_modify(ui_aoprice, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
 		_ui_flag_modify(ui_arprice, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_TOGGLE);
+		/* Ensure the now-visible label shows the correct token price */
+		if (ui_aoprice && !lv_obj_has_flag(ui_aoprice, LV_OBJ_FLAG_HIDDEN) && s_ao_price_buf[0])
+			lv_label_set_text(ui_aoprice, s_ao_price_buf);
+		if (ui_arprice && !lv_obj_has_flag(ui_arprice, LV_OBJ_FLAG_HIDDEN) && s_ar_price_buf[0])
+			lv_label_set_text(ui_arprice, s_ar_price_buf);
 	}
 }
 
@@ -98,7 +137,7 @@ void ui_Screen1_screen_init(void)
 	lv_obj_set_x(ui_aoprice, -1);
 	lv_obj_set_y(ui_aoprice, 1);
 	lv_obj_set_align(ui_aoprice, LV_ALIGN_CENTER);
-	lv_label_set_text(ui_aoprice, "AO$15.09");
+	lv_label_set_text(ui_aoprice, "AO$4.08");
 	lv_obj_add_flag(ui_aoprice, LV_OBJ_FLAG_HIDDEN);
 
 	ui_arprice = lv_label_create(ui_Panel1);
@@ -107,7 +146,7 @@ void ui_Screen1_screen_init(void)
 	lv_obj_set_x(ui_arprice, 2);
 	lv_obj_set_y(ui_arprice, 1);
 	lv_obj_set_align(ui_arprice, LV_ALIGN_CENTER);
-	lv_label_set_text(ui_arprice, "AR$13.09");
+	lv_label_set_text(ui_arprice, "AR$2.52");
 
 	ui_personname = lv_label_create(ui_Screen1);
 	lv_obj_set_width(ui_personname, LV_SIZE_CONTENT);
@@ -141,6 +180,28 @@ void ui_Screen1_screen_init(void)
 	lv_obj_set_style_text_font(ui_whichscreenmark, &ui_font_Pixel, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
 	lv_obj_set_style_transform_scale(ui_whichscreenmark, 450, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
 
+	ui_wifi_not_enable = lv_image_create(ui_Screen1);
+	lv_image_set_src(ui_wifi_not_enable, &ui_img_wifi_not_enable_png);
+	lv_obj_set_width(ui_wifi_not_enable, LV_SIZE_CONTENT);
+	lv_obj_set_height(ui_wifi_not_enable, LV_SIZE_CONTENT);
+	lv_obj_set_x(ui_wifi_not_enable, 113);
+	lv_obj_set_y(ui_wifi_not_enable, -213);
+	lv_obj_set_align(ui_wifi_not_enable, LV_ALIGN_CENTER);
+	lv_obj_add_flag(ui_wifi_not_enable, LV_OBJ_FLAG_CLICKABLE);
+	lv_obj_remove_flag(ui_wifi_not_enable, LV_OBJ_FLAG_SCROLLABLE);
+	lv_image_set_scale(ui_wifi_not_enable, 100);
+
+	ui_wifi_enable = lv_image_create(ui_Screen1);
+	lv_image_set_src(ui_wifi_enable, &ui_img_wifi_enable_png);
+	lv_obj_set_width(ui_wifi_enable, LV_SIZE_CONTENT);
+	lv_obj_set_height(ui_wifi_enable, LV_SIZE_CONTENT);
+	lv_obj_set_x(ui_wifi_enable, 113);
+	lv_obj_set_y(ui_wifi_enable, -213);
+	lv_obj_set_align(ui_wifi_enable, LV_ALIGN_CENTER);
+	lv_obj_add_flag(ui_wifi_enable, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);
+	lv_obj_remove_flag(ui_wifi_enable, LV_OBJ_FLAG_SCROLLABLE);
+	lv_image_set_scale(ui_wifi_enable, 100);
+
 	lv_obj_add_event_cb(ui_Panel1, ui_event_Panel1, LV_EVENT_ALL, NULL);
 	lv_obj_add_event_cb(ui_Screen1, ui_event_Screen1, LV_EVENT_ALL, NULL);
 
@@ -168,4 +229,6 @@ void ui_Screen1_screen_destroy(void)
 	ui_personname = NULL;
 	ui_arrow = NULL;
 	ui_whichscreenmark = NULL;
+	ui_wifi_not_enable = NULL;
+	ui_wifi_enable = NULL;
 }
