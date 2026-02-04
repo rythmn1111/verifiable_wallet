@@ -32,7 +32,7 @@ lv_obj_t *ui_home_button = NULL;
 static void ui_event_home_button(lv_event_t *e)
 {
 	if (lv_event_get_code(e) == LV_EVENT_CLICKED)
-		_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen1_screen_init);
+		_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, &ui_Screen1_screen_init);
 }
 
 static void ui_event_Switch1(lv_event_t *e)

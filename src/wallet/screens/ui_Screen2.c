@@ -14,7 +14,7 @@ void ui_event_Screen2(lv_event_t *e)
 	lv_event_code_t event_code = lv_event_get_code(e);
 	if (event_code == LV_EVENT_GESTURE && lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
 		lv_indev_wait_release(lv_indev_active());
-		_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_Screen1_screen_init);
+		_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, &ui_Screen1_screen_init);
 	}
 }
 
@@ -22,7 +22,7 @@ void ui_event_settingbutton(lv_event_t *e)
 {
 	lv_event_code_t event_code = lv_event_get_code(e);
 	if (event_code == LV_EVENT_CLICKED) {
-		_ui_screen_change(&ui_setting_screen, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_setting_screen_screen_init);
+		_ui_screen_change(&ui_setting_screen, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, &ui_setting_screen_screen_init);
 	}
 }
 

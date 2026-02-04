@@ -31,7 +31,7 @@ static void result_timer_cb(lv_timer_t *timer)
 	if (s_result_label)
 		lv_obj_add_flag(s_result_label, LV_OBJ_FLAG_HIDDEN);
 	if (go_home && ui_wifi_password_screen && ui_Screen1)
-		_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen1_screen_init);
+		_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, &ui_Screen1_screen_init);
 }
 
 static void show_loading(bool show)
@@ -91,7 +91,7 @@ static void ui_event_home_btn(lv_event_t *e)
 {
 	if (lv_event_get_code(e) != LV_EVENT_CLICKED)
 		return;
-	_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen1_screen_init);
+	_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, &ui_Screen1_screen_init);
 }
 
 static void ui_event_connect_btn(lv_event_t *e)
