@@ -4,6 +4,7 @@
 // Project name: wallet3
 
 #include "../ui.h"
+#include "ui_wallet_gen_screen.h"
 
 lv_obj_t *ui_Screen2 = NULL;
 lv_obj_t *ui_whichscreenmark2 = NULL;
@@ -48,6 +49,13 @@ void ui_event_settingbutton(lv_event_t *e)
 	if (event_code == LV_EVENT_CLICKED) {
 		_ui_screen_change(&ui_setting_screen, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, &ui_setting_screen_screen_init);
 	}
+}
+
+static void ui_event_ImgButton2_wallet(lv_event_t *e)
+{
+	lv_event_code_t event_code = lv_event_get_code(e);
+	if (event_code == LV_EVENT_CLICKED)
+		ui_wallet_gen_screen_start();
 }
 
 void ui_Screen2_screen_init(void)
@@ -149,6 +157,7 @@ void ui_Screen2_screen_init(void)
 	lv_image_set_scale(ui_wifi_enable2, 100);
 
 	lv_obj_add_event_cb(ui_settingbutton, ui_event_settingbutton, LV_EVENT_ALL, NULL);
+	lv_obj_add_event_cb(ui_ImgButton2, ui_event_ImgButton2_wallet, LV_EVENT_CLICKED, NULL);
 	lv_obj_add_event_cb(ui_Screen2, ui_event_Screen2, LV_EVENT_ALL, NULL);
 }
 
