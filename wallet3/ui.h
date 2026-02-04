@@ -30,6 +30,7 @@ extern "C" {
 #include "ui_Screen2.h"
 #include "ui_setting_screen.h"
 #include "ui_wifi_password_screen.h"
+#include "ui_Screen3.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -41,6 +42,9 @@ LV_IMG_DECLARE( ui_img_profile2_png);   // assets/profile2.png
 LV_IMG_DECLARE( ui_img_wifi_not_enable_png);   // assets/wifi_not_enable.png
 LV_IMG_DECLARE( ui_img_wifi_enable_png);   // assets/wifi_enable.png
 LV_IMG_DECLARE( ui_img_settingsicon_png);   // assets/settingsicon.png
+LV_IMG_DECLARE( ui_img_wallet_png);   // assets/wallet.png
+LV_IMG_DECLARE( ui_img_under_image_png);   // assets/under_image.png
+LV_IMG_DECLARE( ui_img_verification_png);   // assets/verification.png
 
 // FONTS
 LV_FONT_DECLARE( ui_font_Pixel);

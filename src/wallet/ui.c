@@ -31,6 +31,7 @@ void ui_init( void )
 	lv_display_set_theme(dispp, theme);
 	ui_Screen1_screen_init();
 	ui_Screen2_screen_init();
+	ui_Screen3_screen_init();
 	ui_setting_screen_screen_init();
 	/* Do not create extra screen - can paint white on top on some ports */
 	ui____initial_actions0 = NULL;
@@ -41,6 +42,7 @@ void ui_destroy( void )
 {
 	ui_Screen1_screen_destroy();
 	ui_Screen2_screen_destroy();
+	ui_Screen3_screen_destroy();
 	ui_setting_screen_screen_destroy();
 	ui_wifi_password_screen_screen_destroy();
 }

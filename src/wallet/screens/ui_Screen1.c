@@ -58,7 +58,6 @@ void ui_Screen1_set_prices(const char *ao_price, const char *ar_price)
 
 static void ui_time_timer_cb(lv_timer_t *timer)
 {
-	if (ui_time == NULL) return;
 	time_t now = time(NULL);
 	struct tm *tm = localtime(&now);
 	if (tm == NULL) return;
@@ -69,7 +68,9 @@ static void ui_time_timer_cb(lv_timer_t *timer)
 	else if (h > 12) h -= 12;
 	char buf[UI_TIME_BUF_SIZE];
 	snprintf(buf, sizeof(buf), "%d:%02d%s", h, m, pm ? "PM" : "AM");
-	lv_label_set_text(ui_time, buf);
+	if (ui_time) lv_label_set_text(ui_time, buf);
+	if (ui_time2) lv_label_set_text(ui_time2, buf);
+	if (ui_time3) lv_label_set_text(ui_time3, buf);
 }
 
 void ui_event_Screen1(lv_event_t *e)

@@ -28,6 +28,7 @@ extern "C" {
 ///////////////////// SCREENS ////////////////////
 #include "screens/ui_Screen1.h"
 #include "screens/ui_Screen2.h"
+#include "screens/ui_Screen3.h"
 #include "screens/ui_setting_screen.h"
 #include "screens/ui_wifi_password_screen.h"
 
@@ -41,6 +42,9 @@ LV_IMG_DECLARE( ui_img_profile2_png);   // assets/profile2.png
 LV_IMG_DECLARE( ui_img_settingsicon_png);   // assets/settingsicon.png
 LV_IMG_DECLARE( ui_img_wifi_not_enable_png);
 LV_IMG_DECLARE( ui_img_wifi_enable_png);
+LV_IMG_DECLARE( ui_img_wallet_png);
+LV_IMG_DECLARE( ui_img_under_image_png);
+LV_IMG_DECLARE( ui_img_verification_png);
 
 // FONTS
 LV_FONT_DECLARE( ui_font_Pixel);

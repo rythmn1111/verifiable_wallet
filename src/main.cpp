@@ -29,6 +29,8 @@
 #include "ui.h"
 #include "screens/ui_setting_screen.h"
 #include "screens/ui_Screen1.h"
+#include "screens/ui_Screen2.h"
+#include "screens/ui_Screen3.h"
 #include "screens/ui_wifi_password_screen.h"
 #include "app_wifi.h"
 
@@ -288,6 +290,8 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         if (lvgl_port_lock(pdMS_TO_TICKS(100))) {
             ui_Screen1_set_wifi_connected(0);
+            ui_Screen2_set_wifi_connected(0);
+            ui_Screen3_set_wifi_connected(0);
             ui_wifi_password_screen_on_connect_result(0);  /* failed if connect was pending */
             lvgl_port_unlock();
         }
@@ -307,6 +311,8 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
         xTaskCreate(price_fetch_task, "price_fetch", 4096, NULL, 4, NULL);
         if (lvgl_port_lock(pdMS_TO_TICKS(100))) {
             ui_Screen1_set_wifi_connected(1);
+            ui_Screen2_set_wifi_connected(1);
+            ui_Screen3_set_wifi_connected(1);
             ui_wifi_password_screen_on_connect_result(1);  /* success */
             lvgl_port_unlock();
         }

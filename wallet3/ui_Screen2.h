@@ -18,6 +18,13 @@ extern lv_obj_t *ui_Screen2;
 extern lv_obj_t *ui_whichscreenmark2;
 extern void ui_event_settingbutton( lv_event_t * e);
 extern lv_obj_t *ui_settingbutton;
+extern lv_obj_t *ui_arrow2;
+extern lv_obj_t *ui_arrow3;
+extern lv_obj_t *ui_ImgButton2;
+extern lv_obj_t *ui_bottom_image_for_page;
+extern lv_obj_t *ui_time2;
+extern lv_obj_t *ui_wifi_not_enable2;
+extern lv_obj_t *ui_wifi_enable2;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

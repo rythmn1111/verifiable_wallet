@@ -8,6 +8,13 @@
 lv_obj_t *ui_Screen2 = NULL;
 lv_obj_t *ui_whichscreenmark2 = NULL;
 lv_obj_t *ui_settingbutton = NULL;
+lv_obj_t *ui_arrow2 = NULL;
+lv_obj_t *ui_arrow3 = NULL;
+lv_obj_t *ui_ImgButton2 = NULL;
+lv_obj_t *ui_bottom_image_for_page = NULL;
+lv_obj_t *ui_time2 = NULL;
+lv_obj_t *ui_wifi_not_enable2 = NULL;
+lv_obj_t *ui_wifi_enable2 = NULL;
 
 void ui_event_Screen2(lv_event_t *e)
 {
@@ -15,6 +22,23 @@ void ui_event_Screen2(lv_event_t *e)
 	if (event_code == LV_EVENT_GESTURE && lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
 		lv_indev_wait_release(lv_indev_active());
 		_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, &ui_Screen1_screen_init);
+	}
+	if (event_code == LV_EVENT_GESTURE && lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_LEFT) {
+		lv_indev_wait_release(lv_indev_active());
+		_ui_screen_change(&ui_Screen3, LV_SCR_LOAD_ANIM_OVER_LEFT, 200, 0, &ui_Screen3_screen_init);
+	}
+}
+
+void ui_Screen2_set_wifi_connected(int connected)
+{
+	if (ui_wifi_not_enable2 && ui_wifi_enable2) {
+		if (connected) {
+			lv_obj_add_flag(ui_wifi_not_enable2, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_remove_flag(ui_wifi_enable2, LV_OBJ_FLAG_HIDDEN);
+		} else {
+			lv_obj_remove_flag(ui_wifi_not_enable2, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(ui_wifi_enable2, LV_OBJ_FLAG_HIDDEN);
+		}
 	}
 }
 
@@ -48,9 +72,81 @@ void ui_Screen2_screen_init(void)
 	lv_imagebutton_set_src(ui_settingbutton, LV_IMAGEBUTTON_STATE_RELEASED, NULL, &ui_img_settingsicon_png, NULL);
 	lv_obj_set_width(ui_settingbutton, 238);
 	lv_obj_set_height(ui_settingbutton, 120);
-	lv_obj_set_x(ui_settingbutton, 6);
-	lv_obj_set_y(ui_settingbutton, -11);
+	lv_obj_set_x(ui_settingbutton, 3);
+	lv_obj_set_y(ui_settingbutton, 44);
 	lv_obj_set_align(ui_settingbutton, LV_ALIGN_CENTER);
+
+	ui_arrow2 = lv_label_create(ui_Screen2);
+	lv_obj_set_width(ui_arrow2, LV_SIZE_CONTENT);
+	lv_obj_set_height(ui_arrow2, LV_SIZE_CONTENT);
+	lv_obj_set_x(ui_arrow2, 143);
+	lv_obj_set_y(ui_arrow2, -20);
+	lv_obj_set_align(ui_arrow2, LV_ALIGN_CENTER);
+	lv_label_set_text(ui_arrow2, ">");
+	lv_obj_set_style_text_align(ui_arrow2, LV_TEXT_ALIGN_CENTER, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_text_font(ui_arrow2, &ui_font_Pixel, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_transform_scale(ui_arrow2, 450, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+
+	ui_arrow3 = lv_label_create(ui_Screen2);
+	lv_obj_set_width(ui_arrow3, LV_SIZE_CONTENT);
+	lv_obj_set_height(ui_arrow3, LV_SIZE_CONTENT);
+	lv_obj_set_x(ui_arrow3, -141);
+	lv_obj_set_y(ui_arrow3, -18);
+	lv_obj_set_align(ui_arrow3, LV_ALIGN_CENTER);
+	lv_label_set_text(ui_arrow3, "<");
+	lv_obj_set_style_text_align(ui_arrow3, LV_TEXT_ALIGN_CENTER, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_text_font(ui_arrow3, &ui_font_Pixel, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_transform_scale(ui_arrow3, 450, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+
+	ui_ImgButton2 = lv_imagebutton_create(ui_Screen2);
+	lv_imagebutton_set_src(ui_ImgButton2, LV_IMAGEBUTTON_STATE_RELEASED, NULL, &ui_img_wallet_png, NULL);
+	lv_obj_set_width(ui_ImgButton2, 241);
+	lv_obj_set_height(ui_ImgButton2, 120);
+	lv_obj_set_x(ui_ImgButton2, 3);
+	lv_obj_set_y(ui_ImgButton2, -90);
+	lv_obj_set_align(ui_ImgButton2, LV_ALIGN_CENTER);
+
+	ui_bottom_image_for_page = lv_image_create(ui_Screen2);
+	lv_image_set_src(ui_bottom_image_for_page, &ui_img_under_image_png);
+	lv_obj_set_width(ui_bottom_image_for_page, LV_SIZE_CONTENT);
+	lv_obj_set_height(ui_bottom_image_for_page, LV_SIZE_CONTENT);
+	lv_obj_set_x(ui_bottom_image_for_page, -106);
+	lv_obj_set_y(ui_bottom_image_for_page, 160);
+	lv_obj_set_align(ui_bottom_image_for_page, LV_ALIGN_CENTER);
+	lv_obj_add_flag(ui_bottom_image_for_page, LV_OBJ_FLAG_CLICKABLE);
+	lv_obj_remove_flag(ui_bottom_image_for_page, LV_OBJ_FLAG_SCROLLABLE);
+
+	ui_time2 = lv_label_create(ui_Screen2);
+	lv_obj_set_width(ui_time2, LV_SIZE_CONTENT);
+	lv_obj_set_height(ui_time2, LV_SIZE_CONTENT);
+	lv_obj_set_x(ui_time2, -56);
+	lv_obj_set_y(ui_time2, -216);
+	lv_obj_set_align(ui_time2, LV_ALIGN_CENTER);
+	lv_label_set_text(ui_time2, "12:30PM");
+	lv_obj_set_style_text_font(ui_time2, &ui_font_Pixel, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	lv_obj_set_style_transform_scale(ui_time2, 350, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+
+	ui_wifi_not_enable2 = lv_image_create(ui_Screen2);
+	lv_image_set_src(ui_wifi_not_enable2, &ui_img_wifi_not_enable_png);
+	lv_obj_set_width(ui_wifi_not_enable2, LV_SIZE_CONTENT);
+	lv_obj_set_height(ui_wifi_not_enable2, LV_SIZE_CONTENT);
+	lv_obj_set_x(ui_wifi_not_enable2, 113);
+	lv_obj_set_y(ui_wifi_not_enable2, -213);
+	lv_obj_set_align(ui_wifi_not_enable2, LV_ALIGN_CENTER);
+	lv_obj_add_flag(ui_wifi_not_enable2, LV_OBJ_FLAG_CLICKABLE);
+	lv_obj_remove_flag(ui_wifi_not_enable2, LV_OBJ_FLAG_SCROLLABLE);
+	lv_image_set_scale(ui_wifi_not_enable2, 100);
+
+	ui_wifi_enable2 = lv_image_create(ui_Screen2);
+	lv_image_set_src(ui_wifi_enable2, &ui_img_wifi_enable_png);
+	lv_obj_set_width(ui_wifi_enable2, LV_SIZE_CONTENT);
+	lv_obj_set_height(ui_wifi_enable2, LV_SIZE_CONTENT);
+	lv_obj_set_x(ui_wifi_enable2, 113);
+	lv_obj_set_y(ui_wifi_enable2, -213);
+	lv_obj_set_align(ui_wifi_enable2, LV_ALIGN_CENTER);
+	lv_obj_add_flag(ui_wifi_enable2, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);
+	lv_obj_remove_flag(ui_wifi_enable2, LV_OBJ_FLAG_SCROLLABLE);
+	lv_image_set_scale(ui_wifi_enable2, 100);
 
 	lv_obj_add_event_cb(ui_settingbutton, ui_event_settingbutton, LV_EVENT_ALL, NULL);
 	lv_obj_add_event_cb(ui_Screen2, ui_event_Screen2, LV_EVENT_ALL, NULL);
@@ -63,4 +159,11 @@ void ui_Screen2_screen_destroy(void)
 	ui_Screen2 = NULL;
 	ui_whichscreenmark2 = NULL;
 	ui_settingbutton = NULL;
+	ui_arrow2 = NULL;
+	ui_arrow3 = NULL;
+	ui_ImgButton2 = NULL;
+	ui_bottom_image_for_page = NULL;
+	ui_time2 = NULL;
+	ui_wifi_not_enable2 = NULL;
+	ui_wifi_enable2 = NULL;
 }
