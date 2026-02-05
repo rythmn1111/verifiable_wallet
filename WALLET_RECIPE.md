@@ -1,4 +1,4 @@
-o# Arweave Wallet Recipe
+# Arweave Wallet Recipe
 
 This document records the exact formula we use to generate Arweave-compatible wallets (on the device and for future use, e.g. a website). Follow it to reproduce the same wallet format and addresses.
 

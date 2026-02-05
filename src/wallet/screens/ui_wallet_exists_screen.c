@@ -3,10 +3,15 @@
 #include "../ui.h"
 #include "ui_wallet_exists_screen.h"
 #include "ui_Screen2.h"
+#include "ui_public_address_qr_screen.h"
+#include "wallet_sd.h"
 
 lv_obj_t *ui_wallet_exists_screen = NULL;
 static lv_obj_t *s_menu_list = NULL;
 static lv_obj_t *s_home_btn = NULL;
+
+#define MENU_ACTION_PUBLIC_KEY  ((void *)1)
+#define MENU_ACTION_DELETE      ((void *)2)
 
 static void home_btn_cb(lv_event_t *e)
 {
@@ -14,10 +19,19 @@ static void home_btn_cb(lv_event_t *e)
 	_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, &ui_Screen1_screen_init);
 }
 
-/* Menu item click: no-op for now */
 static void menu_item_cb(lv_event_t *e)
 {
-	(void)e;
+	if (lv_event_get_code(e) != LV_EVENT_CLICKED) return;
+	lv_obj_t *btn = lv_event_get_target(e);
+	void *action = lv_obj_get_user_data(btn);
+	if (action == MENU_ACTION_PUBLIC_KEY) {
+		ui_public_address_qr_screen_show();
+		return;
+	}
+	if (action == MENU_ACTION_DELETE) {
+		wallet_sd_delete();
+		_ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, &ui_Screen2_screen_init);
+	}
 }
 
 static void add_circle_home_button(lv_obj_t *parent)
@@ -78,9 +92,11 @@ void ui_wallet_exists_screen_screen_init(void)
 		"Delete wallet",
 		NULL
 	};
+	static const void *actions[] = { MENU_ACTION_PUBLIC_KEY, NULL, NULL, NULL, MENU_ACTION_DELETE };
 	for (int i = 0; items[i] != NULL; i++) {
 		lv_obj_t *btn = lv_list_add_button(s_menu_list, NULL, items[i]);
 		lv_obj_set_style_text_font(btn, &ui_font_Pixel, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+		lv_obj_set_user_data(btn, (void *)actions[i]);
 		lv_obj_add_event_cb(btn, menu_item_cb, LV_EVENT_CLICKED, NULL);
 	}
 

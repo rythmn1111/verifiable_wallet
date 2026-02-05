@@ -21,10 +21,11 @@ CONFIG_SPIRAM_SPEED_80M=y
 CONFIG_SPIRAM_CLK_IO=30
 CONFIG_SPIRAM_CS_IO=26
 
-# LVGL (for QR scan UI)
+# LVGL (for QR scan UI and public address QR)
 CONFIG_LV_COLOR_16_SWAP=y
 CONFIG_LV_MEM_CUSTOM=y
 CONFIG_LV_USE_LOG=n
+CONFIG_LV_USE_QRCODE=y
 
 # TLS: allow skip server cert verify if no other option set (for HTTPS e.g. CoinGecko)
 CONFIG_ESP_TLS_INSECURE=y

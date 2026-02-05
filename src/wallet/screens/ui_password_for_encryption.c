@@ -5,6 +5,7 @@
 #include "ui_Screen1.h"
 #include "ui_note_for_password.h"
 #include "wallet_jwk_pending.h"
+#include "wallet_address_pending.h"
 #include "wallet_encrypt.h"
 #include "wallet_sd.h"
 #include "arweave_wallet_gen.h"
@@ -100,6 +101,15 @@ static void do_submit(void)
 		return;
 	}
 
+	if (wallet_address_pending_has()) {
+		static char addr_buf[44];
+		if (wallet_address_pending_get(addr_buf, sizeof(addr_buf)) > 0 &&
+		    !wallet_sd_save_public_address(addr_buf)) {
+			show_msg("Address save failed");
+			return;
+		}
+	}
+	wallet_address_pending_clear();
 	wallet_jwk_pending_clear();
 	show_msg("Saved!");
 	_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_MOVE_LEFT, 200, 0, &ui_Screen1_screen_init);

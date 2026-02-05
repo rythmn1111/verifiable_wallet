@@ -3,6 +3,7 @@
 #include "../ui.h"
 #include "ui_last_word_count.h"
 #include "ui_word_count.h"
+#include "ui_generating_public_address.h"
 #include "ui_note_for_password.h"
 #include "wallet_mnemonic_display.h"
 #include <string.h>
@@ -31,7 +32,7 @@ static void finish_btn_cb(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
 	if (code != LV_EVENT_CLICKED) return;
-	_ui_screen_change(&ui_note_for_password, LV_SCR_LOAD_ANIM_MOVE_LEFT, 200, 0, &ui_note_for_password_screen_init);
+	ui_generating_public_address_show();
 }
 
 void ui_last_word_count_refresh_word(void)

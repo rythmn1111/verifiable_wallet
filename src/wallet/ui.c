@@ -50,12 +50,14 @@ void ui_destroy( void )
 	ui_setting_screen_screen_destroy();
 	ui_wallet_no_wallet_screen_screen_destroy();
 	ui_wallet_generation_waiting_screen_screen_destroy();
+	ui_public_address_qr_screen_screen_destroy();
 	ui_wallet_exists_screen_screen_destroy();
 	ui_note_for_words_screen_screen_destroy();
 	ui_new_note_for_word_count_screen_destroy();
 	ui_word_count_screen_destroy();
 	ui_last_word_count_screen_destroy();
 	/* destroy on-demand screens if they were ever created */
+	ui_generating_public_address_screen_destroy();
 	ui_note_for_password_screen_destroy();
 	ui_password_for_encryption_screen_destroy();
 	ui_wifi_password_screen_screen_destroy();

@@ -1,11 +1,13 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 
 /** Base path for wallet on SD (FAT mounted at /sdcard). */
 #define WALLET_SD_DIR        "/sdcard/wallet"
 #define WALLET_WORDS_FILE    "/sdcard/wallet/words.txt"
 #define WALLET_JWK_FILE      "/sdcard/wallet/jwk.txt"
+#define WALLET_ADDRESS_FILE  "/sdcard/wallet/address.txt"
 #define WALLET_FLAG_FILE     "/sdcard/wallet/flag"
 
 /**
@@ -28,13 +30,25 @@ bool wallet_sd_save_jwk_only(const char *jwk_json);
 bool wallet_sd_save_encrypted_jwk(const char *salt_hex, const char *iv_hex, const char *ct_b64);
 
 /**
+ * Save public Arweave address (43 chars) to address.txt.
+ * Call after saving encrypted JWK so both are persisted.
+ */
+bool wallet_sd_save_public_address(const char *address);
+
+/**
+ * Read public Arweave address from address.txt into buf (at least 44 bytes).
+ * Returns true if read succeeded and address is 43 chars; false otherwise.
+ */
+bool wallet_sd_get_public_address(char *buf, size_t buf_size);
+
+/**
  * Return true if a wallet is already stored (flag file contains "red",
  * or both words.txt and jwk.txt exist). Safe to call without SD mounted (returns false).
  */
 bool wallet_sd_exists(void);
 
 /**
- * Delete the stored wallet from SD: remove words.txt, jwk.txt, and flag.
+ * Delete the stored wallet from SD: remove words.txt, jwk.txt, address.txt, and flag.
  * Returns true if removal succeeded (or nothing was there). Safe to call without SD mounted (returns false).
  */
 bool wallet_sd_delete(void);
