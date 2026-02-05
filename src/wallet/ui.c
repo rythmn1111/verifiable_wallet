@@ -35,7 +35,9 @@ void ui_init( void )
 	ui_setting_screen_screen_init();
 	ui_note_for_words_screen_screen_init();
 	ui_new_note_for_word_count_screen_init();
-	/* wallet_generation_waiting_screen created on demand when user taps Wallet */
+	ui_word_count_screen_init();
+	ui_last_word_count_screen_init();
+	/* note_for_password, password_for_encryption, wallet_generation_waiting_screen created on demand to avoid LVGL task watchdog when tapping Wallet */
 	ui____initial_actions0 = NULL;
 	lv_scr_load(ui_Screen1);
 }
@@ -50,5 +52,10 @@ void ui_destroy( void )
 	ui_wallet_exists_screen_screen_destroy();
 	ui_note_for_words_screen_screen_destroy();
 	ui_new_note_for_word_count_screen_destroy();
+	ui_word_count_screen_destroy();
+	ui_last_word_count_screen_destroy();
+	/* destroy on-demand screens if they were ever created */
+	ui_note_for_password_screen_destroy();
+	ui_password_for_encryption_screen_destroy();
 	ui_wifi_password_screen_screen_destroy();
 }

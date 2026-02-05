@@ -34,6 +34,10 @@ extern "C" {
 #include "screens/ui_wallet_exists_screen.h"
 #include "screens/ui_note_for_words_screen.h"
 #include "screens/ui_new_note_for_word_count.h"
+#include "screens/ui_word_count.h"
+#include "screens/ui_last_word_count.h"
+#include "screens/ui_note_for_password.h"
+#include "screens/ui_password_for_encryption.h"
 #include "screens/ui_wifi_password_screen.h"
 
 ///////////////////// VARIABLES ////////////////////
@@ -51,6 +55,9 @@ LV_IMG_DECLARE( ui_img_wallet_watiting_png);
 LV_IMG_DECLARE( ui_img_under_image_png);
 LV_IMG_DECLARE( ui_img_verification_png);
 LV_IMG_DECLARE( ui_img_letsgobutton_png);
+LV_IMG_DECLARE( ui_img_backbutton_png);
+LV_IMG_DECLARE( ui_img_nextbutton_png);
+LV_IMG_DECLARE( ui_img_finishbutton_png);
 
 // FONTS
 LV_FONT_DECLARE( ui_font_Pixel);

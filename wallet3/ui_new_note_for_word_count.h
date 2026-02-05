@@ -3,16 +3,16 @@
 // LVGL version: 9.1.0
 // Project name: wallet3
 
-#ifndef UI_NOTE_FOR_WORD_COUNT_H
-#define UI_NOTE_FOR_WORD_COUNT_H
+#ifndef UI_NEW_NOTE_FOR_WORD_COUNT_H
+#define UI_NEW_NOTE_FOR_WORD_COUNT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// SCREEN: ui_note_for_word_count
-extern void ui_note_for_word_count_screen_init(void);
-extern void ui_note_for_word_count_screen_destroy(void);
+// SCREEN: ui_new_note_for_word_count
+extern void ui_new_note_for_word_count_screen_init(void);
+extern void ui_new_note_for_word_count_screen_destroy(void);
 extern lv_obj_t *ui_new_note_for_word_count;
 extern lv_obj_t *ui_time8;
 extern lv_obj_t *ui_wifi_enable8;

@@ -11,6 +11,7 @@ extern "C" {
 
 extern void ui_new_note_for_word_count_screen_init(void);
 extern void ui_new_note_for_word_count_screen_destroy(void);
+extern void ui_new_note_for_word_count_set_wifi_connected(int connected);
 extern lv_obj_t *ui_new_note_for_word_count;
 extern lv_obj_t *ui_time8;
 extern lv_obj_t *ui_wifi_enable8;

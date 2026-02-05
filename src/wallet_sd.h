@@ -10,10 +10,22 @@
 
 /**
  * Save wallet to SD card: creates WALLET_SD_DIR, writes words to words.txt,
- * jwk_json to keyfile.json, and writes "red" to flag (wallet exists).
+ * jwk_json to jwk.txt, and writes "red" to flag (wallet exists).
  * Returns true if all writes succeeded. Requires SD mounted (esp_sdcard_port_is_mounted()).
  */
 bool wallet_sd_save(const char *words, const char *jwk_json);
+
+/**
+ * Save only JWK and flag to SD (no mnemonic words). Use after wallet generation
+ * so the 12 words are never written to SD. Returns true if write succeeded.
+ */
+bool wallet_sd_save_jwk_only(const char *jwk_json);
+
+/**
+ * Save encrypted JWK to jwk.txt (format: v1, salt_hex, iv_hex, ct_b64).
+ * Use after user sets encryption password. Also writes flag file.
+ */
+bool wallet_sd_save_encrypted_jwk(const char *salt_hex, const char *iv_hex, const char *ct_b64);
 
 /**
  * Return true if a wallet is already stored (flag file contains "red",

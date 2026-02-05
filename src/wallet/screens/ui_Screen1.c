@@ -71,6 +71,11 @@ static void ui_time_timer_cb(lv_timer_t *timer)
 	if (ui_time) lv_label_set_text(ui_time, buf);
 	if (ui_time2) lv_label_set_text(ui_time2, buf);
 	if (ui_time3) lv_label_set_text(ui_time3, buf);
+	if (ui_time6) lv_label_set_text(ui_time6, buf);
+	if (ui_time8) lv_label_set_text(ui_time8, buf);
+	if (ui_time1) lv_label_set_text(ui_time1, buf);
+	if (ui_time5) lv_label_set_text(ui_time5, buf);
+	if (ui_time5_pwd) lv_label_set_text(ui_time5_pwd, buf);
 }
 
 void ui_event_Screen1(lv_event_t *e)

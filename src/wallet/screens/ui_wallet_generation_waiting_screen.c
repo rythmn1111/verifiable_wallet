@@ -2,9 +2,10 @@
 
 #include "../ui.h"
 #include "ui_wallet_generation_waiting_screen.h"
-#include "ui_Screen2.h"
+#include "ui_new_note_for_word_count.h"
 #include "arweave_wallet_gen.h"
-#include "wallet_sd.h"
+#include "wallet_mnemonic_display.h"
+#include "wallet_jwk_pending.h"
 #include "esp_lvgl_port.h"
 
 lv_obj_t *ui_wallet_generation_waiting_screen = NULL;
@@ -18,13 +19,15 @@ static lv_obj_t *s_done_btn = NULL;
 static void done_btn_cb(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-	if (code == LV_EVENT_CLICKED && ui_Screen2)
-		_ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, &ui_Screen2_screen_init);
+	if (code == LV_EVENT_CLICKED && ui_new_note_for_word_count)
+		_ui_screen_change(&ui_new_note_for_word_count, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_new_note_for_word_count_screen_init);
 }
 
 static void wallet_gen_done_cb(const char *words, const char *jwk)
 {
-	wallet_sd_save(words, jwk ? jwk : "");
+	/* Store JWK in memory only; user will encrypt with password on next screen. */
+	wallet_jwk_pending_set(jwk ? jwk : "");
+	wallet_mnemonic_display_set(words);
 	if (lvgl_port_lock(pdMS_TO_TICKS(100))) {
 		if (s_done_btn)
 			lv_obj_remove_flag(s_done_btn, LV_OBJ_FLAG_HIDDEN);
@@ -38,7 +41,7 @@ void ui_wallet_generation_waiting_screen_start(void)
 		ui_wallet_generation_waiting_screen_screen_init();
 	if (s_done_btn)
 		lv_obj_add_flag(s_done_btn, LV_OBJ_FLAG_HIDDEN);
-	_ui_screen_change(&ui_wallet_generation_waiting_screen, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, NULL);
+	_ui_screen_change(&ui_wallet_generation_waiting_screen, LV_SCR_LOAD_ANIM_NONE, 0, 0, NULL);
 	arweave_wallet_gen_start(wallet_gen_done_cb);
 }
 
@@ -68,7 +71,7 @@ void ui_wallet_generation_waiting_screen_screen_init(void)
 	lv_obj_set_align(ui_time4, LV_ALIGN_CENTER);
 	lv_label_set_text(ui_time4, "12:30PM");
 	lv_obj_set_style_text_font(ui_time4, &ui_font_Pixel, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
-	lv_obj_set_style_transform_scale(ui_time4, 350, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
+	/* no transform_scale: avoids taskLVGL watchdog on ESP32 */
 
 	ui_wifi_enable4 = lv_image_create(ui_wallet_generation_waiting_screen);
 	lv_image_set_src(ui_wifi_enable4, &ui_img_wifi_enable_png);

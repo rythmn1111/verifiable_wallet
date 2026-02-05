@@ -2,8 +2,31 @@
 
 #include "../ui.h"
 #include "ui_new_note_for_word_count.h"
+#include "ui_word_count.h"
 
 lv_obj_t *ui_new_note_for_word_count = NULL;
+
+static void lets_go_btn_cb(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	if (code != LV_EVENT_CLICKED) return;
+	ui_word_count_set_index(0);
+	ui_word_count_refresh_labels();
+	_ui_screen_change(&ui_word_count, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, &ui_word_count_screen_init);
+}
+
+void ui_new_note_for_word_count_set_wifi_connected(int connected)
+{
+	if (ui_wifi_not_enable8 && ui_wifi_enable8) {
+		if (connected) {
+			lv_obj_add_flag(ui_wifi_not_enable8, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_remove_flag(ui_wifi_enable8, LV_OBJ_FLAG_HIDDEN);
+		} else {
+			lv_obj_remove_flag(ui_wifi_not_enable8, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(ui_wifi_enable8, LV_OBJ_FLAG_HIDDEN);
+		}
+	}
+}
 lv_obj_t *ui_time8 = NULL;
 lv_obj_t *ui_wifi_enable8 = NULL;
 lv_obj_t *ui_wifi_not_enable8 = NULL;
@@ -71,7 +94,7 @@ void ui_new_note_for_word_count_screen_init(void)
 	lv_obj_set_style_text_align(ui_Label11, LV_TEXT_ALIGN_CENTER, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
 	lv_obj_set_style_text_font(ui_Label11, &ui_font_pixel_wordings_small, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
 
-	/* Let's go: original image button */
+	/* Let's go: original image button → Screen2 on click */
 	ui_ImgButton8 = lv_imagebutton_create(ui_new_note_for_word_count);
 	lv_imagebutton_set_src(ui_ImgButton8, LV_IMAGEBUTTON_STATE_RELEASED, NULL, &ui_img_letsgobutton_png, NULL);
 	lv_obj_set_width(ui_ImgButton8, 105);
@@ -79,6 +102,7 @@ void ui_new_note_for_word_count_screen_init(void)
 	lv_obj_set_x(ui_ImgButton8, -1);
 	lv_obj_set_y(ui_ImgButton8, 146);
 	lv_obj_set_align(ui_ImgButton8, LV_ALIGN_CENTER);
+	lv_obj_add_event_cb(ui_ImgButton8, lets_go_btn_cb, LV_EVENT_CLICKED, NULL);
 }
 
 void ui_new_note_for_word_count_screen_destroy(void)

@@ -81,6 +81,82 @@ bool wallet_sd_save(const char *words, const char *jwk_json)
 	return true;
 }
 
+bool wallet_sd_save_jwk_only(const char *jwk_json)
+{
+	if (!esp_sdcard_port_is_mounted()) {
+		ESP_LOGE(TAG, "SD not mounted");
+		return false;
+	}
+	if (!jwk_json || jwk_json[0] == '\0') {
+		ESP_LOGD(TAG, "jwk empty, not saving");
+		return false;
+	}
+	if (!ensure_wallet_dir())
+		return false;
+
+	FILE *f = fopen(WALLET_JWK_FILE, "w");
+	if (!f) {
+		ESP_LOGE(TAG, "fopen %s: %s", WALLET_JWK_FILE, strerror(errno));
+		return false;
+	}
+	if (fputs(jwk_json, f) < 0) {
+		ESP_LOGE(TAG, "write jwk failed");
+		fclose(f);
+		return false;
+	}
+	if (fclose(f) != 0) {
+		ESP_LOGE(TAG, "fclose jwk: %s", strerror(errno));
+		return false;
+	}
+
+	f = fopen(WALLET_FLAG_FILE, "w");
+	if (f) {
+		fputs("red", f);
+		fclose(f);
+	} else {
+		ESP_LOGW(TAG, "optional flag file write failed: %s", strerror(errno));
+	}
+
+	ESP_LOGI(TAG, "wallet (JWK only) saved to %s (mnemonic not saved)", WALLET_SD_DIR);
+	return true;
+}
+
+bool wallet_sd_save_encrypted_jwk(const char *salt_hex, const char *iv_hex, const char *ct_b64)
+{
+	if (!esp_sdcard_port_is_mounted()) {
+		ESP_LOGE(TAG, "SD not mounted");
+		return false;
+	}
+	if (!salt_hex || !iv_hex || !ct_b64) {
+		ESP_LOGE(TAG, "null encrypted jwk params");
+		return false;
+	}
+	if (!ensure_wallet_dir())
+		return false;
+
+	FILE *f = fopen(WALLET_JWK_FILE, "w");
+	if (!f) {
+		ESP_LOGE(TAG, "fopen %s: %s", WALLET_JWK_FILE, strerror(errno));
+		return false;
+	}
+	fprintf(f, "v1\n%s\n%s\n%s\n", salt_hex, iv_hex, ct_b64);
+	if (fclose(f) != 0) {
+		ESP_LOGE(TAG, "fclose jwk: %s", strerror(errno));
+		return false;
+	}
+
+	f = fopen(WALLET_FLAG_FILE, "w");
+	if (f) {
+		fputs("red", f);
+		fclose(f);
+	} else {
+		ESP_LOGW(TAG, "optional flag file write failed: %s", strerror(errno));
+	}
+
+	ESP_LOGI(TAG, "encrypted JWK saved to %s", WALLET_SD_DIR);
+	return true;
+}
+
 static bool file_readable(const char *path)
 {
 	FILE *f = fopen(path, "r");

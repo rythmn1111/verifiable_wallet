@@ -292,6 +292,10 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
             ui_Screen1_set_wifi_connected(0);
             ui_Screen2_set_wifi_connected(0);
             ui_Screen3_set_wifi_connected(0);
+            ui_new_note_for_word_count_set_wifi_connected(0);
+            ui_word_count_set_wifi_connected(0);
+            ui_last_word_count_set_wifi_connected(0);
+            ui_note_for_password_set_wifi_connected(0);
             ui_wifi_password_screen_on_connect_result(0);  /* failed if connect was pending */
             lvgl_port_unlock();
         }
@@ -313,6 +317,10 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base,
             ui_Screen1_set_wifi_connected(1);
             ui_Screen2_set_wifi_connected(1);
             ui_Screen3_set_wifi_connected(1);
+            ui_new_note_for_word_count_set_wifi_connected(1);
+            ui_word_count_set_wifi_connected(1);
+            ui_last_word_count_set_wifi_connected(1);
+            ui_note_for_password_set_wifi_connected(1);
             ui_wifi_password_screen_on_connect_result(1);  /* success */
             lvgl_port_unlock();
         }
