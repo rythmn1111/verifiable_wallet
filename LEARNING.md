@@ -79,6 +79,18 @@ So we combine: two byte orders (bswap / no bswap) × normal image + flipped imag
 
 ---
 
+## 8. LVGL task watchdog: don’t create heavy screens at startup (Wallet freeze)
+
+**Problem:** Tapping the Wallet button caused the device to freeze; logs showed "Task watchdog got triggered" with `taskLVGL` running on CPU 0 and IDLE0 not resetting in time.
+
+**Cause:** When we added the password flow (note-for-password screen and password-for-encryption screen with keyboard), we started creating **both screens at app startup** in `ui_init()`. That meant more LVGL objects in memory and more work for the LVGL task every frame. The Wallet tap still did the same work (SD existence check + optionally creating the wallet-waiting screen), but the **baseline load** from the two extra screens (especially the full on-screen keyboard) pushed the LVGL task over the watchdog limit when the user then tapped Wallet.
+
+**Fix:** Create those screens **on demand** instead of at startup — same pattern as the wallet generation waiting screen. Remove `ui_note_for_password_screen_init()` and `ui_password_for_encryption_screen_init()` from `ui_init()`. Navigate to them with `_ui_screen_change(..., &ui_note_for_password_screen_init)` (and the same for the password screen) so they are created the first time the user reaches that step. At boot we're back to the previous footprint; the new screens only exist when the user is in that flow.
+
+**Takeaway:** On resource-limited targets (e.g. ESP32), avoid creating heavy LVGL screens (keyboards, many widgets) at startup. Create them on first use so the LVGL task stays under the task watchdog threshold.
+
+---
+
 ## Quick reference
 
 | Issue | Fix |
@@ -89,7 +101,8 @@ So we combine: two byte orders (bswap / no bswap) × normal image + flipped imag
 | QR never decodes (byte order) | Try grayscale with and without `__builtin_bswap16` (big-endian vs little-endian RGB565). |
 | Orientation / ECC failures | Try decode with and without `quirc_flip(&code)`; try vertically flipped grayscale image. |
 | uint8_t / build errors in qr_decoder.h | Add `#include <stdint.h>`. |
+| Wallet tap → freeze / task watchdog (taskLVGL) | Don't create note-for-password and password-for-encryption screens at startup; create them on demand when navigating to them. |
 
 ---
 
-*Captured so we don’t forget: callback light, stack big, quirc (w,h), use fb dimensions, try both byte orders and flip code + flip image.*
+*Captured so we don’t forget: callback light, stack big, quirc (w,h), use fb dimensions, try both byte orders and flip code + flip image; heavy LVGL screens (e.g. keyboard) on demand, not at init.*

@@ -55,12 +55,11 @@ void ui_password_for_encryption_clear_inputs(void)
 	}
 }
 
-static void submit_btn_cb(lv_event_t *e)
+/** Shared submit logic: validate, encrypt, save, then go to Screen1. */
+static void do_submit(void)
 {
-	if (lv_event_get_code(e) != LV_EVENT_CLICKED) return;
-
-	const char *p1 = lv_textarea_get_text(ui_password_box_enc);
-	const char *p2 = lv_textarea_get_text(ui_confirm_password_box);
+	const char *p1 = ui_password_box_enc ? lv_textarea_get_text(ui_password_box_enc) : "";
+	const char *p2 = ui_confirm_password_box ? lv_textarea_get_text(ui_confirm_password_box) : "";
 	if (!p1) p1 = "";
 	if (!p2) p2 = "";
 
@@ -106,6 +105,19 @@ static void submit_btn_cb(lv_event_t *e)
 	_ui_screen_change(&ui_Screen1, LV_SCR_LOAD_ANIM_MOVE_LEFT, 200, 0, &ui_Screen1_screen_init);
 }
 
+static void submit_btn_cb(lv_event_t *e)
+{
+	if (lv_event_get_code(e) != LV_EVENT_CLICKED) return;
+	do_submit();
+}
+
+/** When user presses Done/Enter on the keyboard, LVGL sends LV_EVENT_READY to the focused textarea. */
+static void textarea_ready_cb(lv_event_t *e)
+{
+	if (lv_event_get_code(e) != LV_EVENT_READY) return;
+	do_submit();
+}
+
 void ui_password_for_encryption_screen_init(void)
 {
 	ui_password_for_encryption = lv_obj_create(NULL);
@@ -134,6 +146,7 @@ void ui_password_for_encryption_screen_init(void)
 	lv_textarea_set_max_length(ui_password_box_enc, PASSWORD_MAX_LEN);
 	lv_textarea_set_password_mode(ui_password_box_enc, true);
 	lv_obj_add_event_cb(ui_password_box_enc, pwd_box_enc_cb, LV_EVENT_CLICKED, NULL);
+	lv_obj_add_event_cb(ui_password_box_enc, textarea_ready_cb, LV_EVENT_READY, NULL);
 
 	ui_confirm_password_label = lv_label_create(ui_password_for_encryption);
 	lv_obj_set_width(ui_confirm_password_label, LV_SIZE_CONTENT);
@@ -156,12 +169,13 @@ void ui_password_for_encryption_screen_init(void)
 	lv_textarea_set_max_length(ui_confirm_password_box, PASSWORD_MAX_LEN);
 	lv_textarea_set_password_mode(ui_confirm_password_box, true);
 	lv_obj_add_event_cb(ui_confirm_password_box, confirm_box_cb, LV_EVENT_CLICKED, NULL);
+	lv_obj_add_event_cb(ui_confirm_password_box, textarea_ready_cb, LV_EVENT_READY, NULL);
 
 	ui_msg_label_enc = lv_label_create(ui_password_for_encryption);
 	lv_obj_set_width(ui_msg_label_enc, 280);
 	lv_obj_set_height(ui_msg_label_enc, LV_SIZE_CONTENT);
 	lv_obj_set_x(ui_msg_label_enc, 0);
-	lv_obj_set_y(ui_msg_label_enc, 55);
+	lv_obj_set_y(ui_msg_label_enc, 78);
 	lv_obj_set_align(ui_msg_label_enc, LV_ALIGN_CENTER);
 	lv_label_set_text(ui_msg_label_enc, "");
 	lv_obj_set_style_text_align(ui_msg_label_enc, LV_TEXT_ALIGN_CENTER, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
@@ -169,14 +183,14 @@ void ui_password_for_encryption_screen_init(void)
 	lv_obj_add_flag(ui_msg_label_enc, LV_OBJ_FLAG_HIDDEN);
 
 	ui_submit_btn_enc = lv_button_create(ui_password_for_encryption);
-	lv_obj_set_width(ui_submit_btn_enc, 140);
-	lv_obj_set_height(ui_submit_btn_enc, 44);
+	lv_obj_set_width(ui_submit_btn_enc, 160);
+	lv_obj_set_height(ui_submit_btn_enc, 48);
 	lv_obj_set_x(ui_submit_btn_enc, 0);
-	lv_obj_set_y(ui_submit_btn_enc, 95);
+	lv_obj_set_y(ui_submit_btn_enc, 55);
 	lv_obj_set_align(ui_submit_btn_enc, LV_ALIGN_CENTER);
 	lv_obj_add_event_cb(ui_submit_btn_enc, submit_btn_cb, LV_EVENT_CLICKED, NULL);
 	lv_obj_t *btn_lbl = lv_label_create(ui_submit_btn_enc);
-	lv_label_set_text(btn_lbl, "Submit");
+	lv_label_set_text(btn_lbl, "Done");
 	lv_obj_center(btn_lbl);
 	lv_obj_set_style_text_font(btn_lbl, &ui_font_Pixel, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
 
