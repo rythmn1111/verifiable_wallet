@@ -30,6 +30,7 @@ extern "C" {
 #include "screens/ui_Screen2.h"
 #include "screens/ui_Screen3.h"
 #include "screens/ui_setting_screen.h"
+#include "screens/ui_wallet_no_wallet_screen.h"
 #include "screens/ui_wallet_generation_waiting_screen.h"
 #include "screens/ui_wallet_exists_screen.h"
 #include "screens/ui_note_for_words_screen.h"

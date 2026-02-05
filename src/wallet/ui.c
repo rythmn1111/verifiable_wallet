@@ -48,6 +48,7 @@ void ui_destroy( void )
 	ui_Screen2_screen_destroy();
 	ui_Screen3_screen_destroy();
 	ui_setting_screen_screen_destroy();
+	ui_wallet_no_wallet_screen_screen_destroy();
 	ui_wallet_generation_waiting_screen_screen_destroy();
 	ui_wallet_exists_screen_screen_destroy();
 	ui_note_for_words_screen_screen_destroy();

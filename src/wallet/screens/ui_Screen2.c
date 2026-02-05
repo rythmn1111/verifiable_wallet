@@ -4,6 +4,7 @@
 // Project name: wallet3
 
 #include "../ui.h"
+#include "ui_wallet_no_wallet_screen.h"
 #include "ui_wallet_generation_waiting_screen.h"
 #include "ui_wallet_exists_screen.h"
 #include "wallet_sd.h"
@@ -61,7 +62,7 @@ static void ui_event_ImgButton2_wallet(lv_event_t *e)
 	if (wallet_sd_exists())
 		ui_wallet_exists_screen_show();
 	else
-		ui_wallet_generation_waiting_screen_start();
+		ui_wallet_no_wallet_screen_show();
 }
 
 void ui_Screen2_screen_init(void)
