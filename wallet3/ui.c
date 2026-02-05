@@ -34,11 +34,11 @@ ui_Screen2_screen_init();
 ui_setting_screen_screen_init();
 ui_Screen3_screen_init();
 ui_wallet_generation_waiting_screen_screen_init();
-ui_note_for_words_screen_screen_init();
 ui_words_screen_screen_init();
 ui_last_words_screen_screen_init();
 ui_note_for_password_creation_screen_init();
 ui_wifi_password_screen_screen_init();
+ui_new_note_for_word_count_screen_init();
 ui____initial_actions0 = lv_obj_create(NULL);
 lv_disp_load_scr( ui_Screen1);
 }
@@ -49,9 +49,9 @@ ui_Screen2_screen_destroy();
 ui_setting_screen_screen_destroy();
 ui_Screen3_screen_destroy();
 ui_wallet_generation_waiting_screen_screen_destroy();
-ui_note_for_words_screen_screen_destroy();
 ui_words_screen_screen_destroy();
 ui_last_words_screen_screen_destroy();
 ui_note_for_password_creation_screen_destroy();
 ui_wifi_password_screen_screen_destroy();
+ui_new_note_for_word_count_screen_destroy();
 }

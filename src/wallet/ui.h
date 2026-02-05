@@ -32,6 +32,8 @@ extern "C" {
 #include "screens/ui_setting_screen.h"
 #include "screens/ui_wallet_generation_waiting_screen.h"
 #include "screens/ui_wallet_exists_screen.h"
+#include "screens/ui_note_for_words_screen.h"
+#include "screens/ui_new_note_for_word_count.h"
 #include "screens/ui_wifi_password_screen.h"
 
 ///////////////////// VARIABLES ////////////////////
@@ -48,9 +50,12 @@ LV_IMG_DECLARE( ui_img_wallet_png);
 LV_IMG_DECLARE( ui_img_wallet_watiting_png);
 LV_IMG_DECLARE( ui_img_under_image_png);
 LV_IMG_DECLARE( ui_img_verification_png);
+LV_IMG_DECLARE( ui_img_letsgobutton_png);
 
 // FONTS
 LV_FONT_DECLARE( ui_font_Pixel);
+LV_FONT_DECLARE( ui_font_pixel_heading);
+LV_FONT_DECLARE( ui_font_pixel_wordings_small);
 
 // UI INIT
 void ui_init(void);

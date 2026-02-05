@@ -31,11 +31,11 @@ extern "C" {
 #include "ui_setting_screen.h"
 #include "ui_Screen3.h"
 #include "ui_wallet_generation_waiting_screen.h"
-#include "ui_note_for_words_screen.h"
 #include "ui_words_screen.h"
 #include "ui_last_words_screen.h"
 #include "ui_note_for_password_creation.h"
 #include "ui_wifi_password_screen.h"
+#include "ui_note_for_word_count.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -51,13 +51,16 @@ LV_IMG_DECLARE( ui_img_wallet_png);   // assets/wallet.png
 LV_IMG_DECLARE( ui_img_under_image_png);   // assets/under_image.png
 LV_IMG_DECLARE( ui_img_verification_png);   // assets/verification.png
 LV_IMG_DECLARE( ui_img_wallet_watiting_png);   // assets/wallet_watiting.png
-LV_IMG_DECLARE( ui_img_letsgobutton_png);   // assets/letsgobutton.png
 LV_IMG_DECLARE( ui_img_backbutton_png);   // assets/backbutton.png
 LV_IMG_DECLARE( ui_img_nextbutton_png);   // assets/nextbutton.png
 LV_IMG_DECLARE( ui_img_finishbutton_png);   // assets/finishbutton.png
+LV_IMG_DECLARE( ui_img_letsgobutton_png);   // assets/letsgobutton.png
 
 // FONTS
 LV_FONT_DECLARE( ui_font_Pixel);
+LV_FONT_DECLARE( ui_font_pixel_heading);
+LV_FONT_DECLARE( ui_font_pixel_wordings);
+LV_FONT_DECLARE( ui_font_pixel_wordings_small);
 
 // UI INIT
 void ui_init(void);

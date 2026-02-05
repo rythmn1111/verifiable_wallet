@@ -4,6 +4,7 @@
 // Project name: wallet3
 
 #include "../ui.h"
+#include "ui_new_note_for_word_count.h"
 
 lv_obj_t *ui_Screen3 = NULL;
 lv_obj_t *ui_time3 = NULL;
@@ -34,6 +35,13 @@ void ui_event_Screen3(lv_event_t *e)
 		lv_indev_wait_release(lv_indev_active());
 		_ui_screen_change(&ui_Screen2, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, &ui_Screen2_screen_init);
 	}
+}
+
+static void verification_btn_cb(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	if (code == LV_EVENT_CLICKED && ui_new_note_for_word_count)
+		_ui_screen_change(&ui_new_note_for_word_count, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_new_note_for_word_count_screen_init);
 }
 
 void ui_Screen3_screen_init(void)
@@ -103,6 +111,7 @@ void ui_Screen3_screen_init(void)
 	lv_obj_set_x(ui_ImgButton3, 1);
 	lv_obj_set_y(ui_ImgButton3, -9);
 	lv_obj_set_align(ui_ImgButton3, LV_ALIGN_CENTER);
+	lv_obj_add_event_cb(ui_ImgButton3, verification_btn_cb, LV_EVENT_CLICKED, NULL);
 
 	ui_arrow4 = lv_label_create(ui_Screen3);
 	lv_obj_set_width(ui_arrow4, LV_SIZE_CONTENT);
