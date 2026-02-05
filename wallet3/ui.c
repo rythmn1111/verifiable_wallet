@@ -32,8 +32,13 @@ lv_disp_set_theme(dispp, theme);
 ui_Screen1_screen_init();
 ui_Screen2_screen_init();
 ui_setting_screen_screen_init();
-ui_wifi_password_screen_screen_init();
 ui_Screen3_screen_init();
+ui_wallet_generation_waiting_screen_screen_init();
+ui_note_for_words_screen_screen_init();
+ui_words_screen_screen_init();
+ui_last_words_screen_screen_init();
+ui_note_for_password_creation_screen_init();
+ui_wifi_password_screen_screen_init();
 ui____initial_actions0 = lv_obj_create(NULL);
 lv_disp_load_scr( ui_Screen1);
 }
@@ -42,6 +47,11 @@ void ui_destroy( void )
 {ui_Screen1_screen_destroy();
 ui_Screen2_screen_destroy();
 ui_setting_screen_screen_destroy();
-ui_wifi_password_screen_screen_destroy();
 ui_Screen3_screen_destroy();
+ui_wallet_generation_waiting_screen_screen_destroy();
+ui_note_for_words_screen_screen_destroy();
+ui_words_screen_screen_destroy();
+ui_last_words_screen_screen_destroy();
+ui_note_for_password_creation_screen_destroy();
+ui_wifi_password_screen_screen_destroy();
 }

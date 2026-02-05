@@ -4,7 +4,9 @@
 // Project name: wallet3
 
 #include "../ui.h"
-#include "ui_wallet_gen_screen.h"
+#include "ui_wallet_generation_waiting_screen.h"
+#include "ui_wallet_exists_screen.h"
+#include "wallet_sd.h"
 
 lv_obj_t *ui_Screen2 = NULL;
 lv_obj_t *ui_whichscreenmark2 = NULL;
@@ -54,8 +56,12 @@ void ui_event_settingbutton(lv_event_t *e)
 static void ui_event_ImgButton2_wallet(lv_event_t *e)
 {
 	lv_event_code_t event_code = lv_event_get_code(e);
-	if (event_code == LV_EVENT_CLICKED)
-		ui_wallet_gen_screen_start();
+	if (event_code != LV_EVENT_CLICKED)
+		return;
+	if (wallet_sd_exists())
+		ui_wallet_exists_screen_show();
+	else
+		ui_wallet_generation_waiting_screen_start();
 }
 
 void ui_Screen2_screen_init(void)

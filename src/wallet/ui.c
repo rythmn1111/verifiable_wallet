@@ -33,7 +33,7 @@ void ui_init( void )
 	ui_Screen2_screen_init();
 	ui_Screen3_screen_init();
 	ui_setting_screen_screen_init();
-	/* wallet_gen_screen created on demand when user taps Wallet */
+	/* wallet_generation_waiting_screen created on demand when user taps Wallet */
 	ui____initial_actions0 = NULL;
 	lv_scr_load(ui_Screen1);
 }
@@ -44,6 +44,7 @@ void ui_destroy( void )
 	ui_Screen2_screen_destroy();
 	ui_Screen3_screen_destroy();
 	ui_setting_screen_screen_destroy();
-	ui_wallet_gen_screen_screen_destroy();
+	ui_wallet_generation_waiting_screen_screen_destroy();
+	ui_wallet_exists_screen_screen_destroy();
 	ui_wifi_password_screen_screen_destroy();
 }
