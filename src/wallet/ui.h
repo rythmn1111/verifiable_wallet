@@ -33,6 +33,7 @@ extern "C" {
 #include "screens/ui_wallet_no_wallet_screen.h"
 #include "screens/ui_wallet_generation_waiting_screen.h"
 #include "screens/ui_public_address_qr_screen.h"
+#include "screens/ui_export_key_screen.h"
 #include "screens/ui_wallet_exists_screen.h"
 #include "screens/ui_note_for_words_screen.h"
 #include "screens/ui_new_note_for_word_count.h"

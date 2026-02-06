@@ -28,6 +28,20 @@ static void bytes_to_hex(const unsigned char *buf, size_t len, char *hex)
 	hex[len * 2] = '\0';
 }
 
+static int hex_to_bytes(const char *hex, unsigned char *buf, size_t buf_size)
+{
+	size_t len = strlen(hex);
+	if (len % 2 != 0 || len / 2 > buf_size)
+		return -1;
+	for (size_t i = 0; i < len; i += 2) {
+		unsigned int v;
+		if (sscanf(hex + i, "%2x", &v) != 1)
+			return -1;
+		buf[i / 2] = (unsigned char)v;
+	}
+	return (int)(len / 2);
+}
+
 int wallet_encrypt_jwk(const char *password, const char *jwk_json,
                        char *salt_hex, char *iv_hex, char *ct_b64, size_t ct_b64_size)
 {
@@ -101,5 +115,71 @@ int wallet_encrypt_jwk(const char *password, const char *jwk_json,
 	}
 	ct_b64[olen] = '\0';
 
+	return 0;
+}
+
+int wallet_decrypt_jwk(const char *password, const char *salt_hex, const char *iv_hex,
+                       const char *ct_b64, char *jwk_buf, size_t jwk_buf_size)
+{
+	if (!password || !salt_hex || !iv_hex || !ct_b64 || !jwk_buf || jwk_buf_size == 0)
+		return -1;
+
+	unsigned char salt[WALLET_SALT_BYTES];
+	unsigned char iv[WALLET_GCM_IV_BYTES];
+	unsigned char key[WALLET_KEY_BYTES];
+
+	if (hex_to_bytes(salt_hex, salt, WALLET_SALT_BYTES) != WALLET_SALT_BYTES)
+		return -2;
+	if (hex_to_bytes(iv_hex, iv, WALLET_GCM_IV_BYTES) != WALLET_GCM_IV_BYTES)
+		return -3;
+
+	int ret = mbedtls_pkcs5_pbkdf2_hmac_ext(
+		MBEDTLS_MD_SHA256,
+		(const unsigned char *)password, strlen(password),
+		salt, WALLET_SALT_BYTES,
+		WALLET_ENCRYPT_PBKDF2_ITER, WALLET_KEY_BYTES, key);
+	if (ret != 0) {
+		ESP_LOGE(TAG, "PBKDF2 decrypt failed %d", ret);
+		return -4;
+	}
+
+	size_t ct_b64_len = strlen(ct_b64);
+	size_t ct_len = (ct_b64_len / 4) * 3;
+	if (ct_len < WALLET_GCM_TAG_BYTES)
+		return -5;
+	unsigned char *ct = (unsigned char *)malloc(ct_len);
+	if (!ct)
+		return -6;
+	size_t olen;
+	ret = mbedtls_base64_decode(ct, ct_len, &olen, (const unsigned char *)ct_b64, ct_b64_len);
+	if (ret != 0 || olen < WALLET_GCM_TAG_BYTES) {
+		free(ct);
+		return -7;
+	}
+	size_t jwk_len = olen - WALLET_GCM_TAG_BYTES;
+	if (jwk_len >= jwk_buf_size) {
+		free(ct);
+		return -8;
+	}
+
+	mbedtls_gcm_context gcm;
+	mbedtls_gcm_init(&gcm);
+	ret = mbedtls_gcm_setkey(&gcm, MBEDTLS_CIPHER_ID_AES, key, WALLET_KEY_BYTES * 8);
+	if (ret != 0) {
+		mbedtls_gcm_free(&gcm);
+		free(ct);
+		return -9;
+	}
+	ret = mbedtls_gcm_auth_decrypt(&gcm, jwk_len,
+		iv, WALLET_GCM_IV_BYTES, NULL, 0,
+		ct + jwk_len, WALLET_GCM_TAG_BYTES,
+		ct, (unsigned char *)jwk_buf);
+	mbedtls_gcm_free(&gcm);
+	free(ct);
+	if (ret != 0) {
+		ESP_LOGE(TAG, "GCM auth decrypt failed %d", ret);
+		return -10;
+	}
+	jwk_buf[jwk_len] = '\0';
 	return 0;
 }

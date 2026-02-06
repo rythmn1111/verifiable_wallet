@@ -42,6 +42,15 @@ bool wallet_sd_save_public_address(const char *address);
 bool wallet_sd_get_public_address(char *buf, size_t buf_size);
 
 /**
+ * Read encrypted JWK from jwk.txt (format: v1\nsalt_hex\niv_hex\nct_b64).
+ * Buffers must be at least: salt_hex 34, iv_hex 26 (to consume newlines), ct_b64 >= 8192 recommended.
+ * Returns true if read succeeded and first line is "v1"; false otherwise.
+ */
+bool wallet_sd_read_encrypted_jwk(char *salt_hex, size_t salt_hex_size,
+                                  char *iv_hex, size_t iv_hex_size,
+                                  char *ct_b64, size_t ct_b64_size);
+
+/**
  * Return true if a wallet is already stored (flag file contains "red",
  * or both words.txt and jwk.txt exist). Safe to call without SD mounted (returns false).
  */

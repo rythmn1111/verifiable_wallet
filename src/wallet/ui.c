@@ -51,6 +51,7 @@ void ui_destroy( void )
 	ui_wallet_no_wallet_screen_screen_destroy();
 	ui_wallet_generation_waiting_screen_screen_destroy();
 	ui_public_address_qr_screen_screen_destroy();
+	ui_export_key_screen_screen_destroy();
 	ui_wallet_exists_screen_screen_destroy();
 	ui_note_for_words_screen_screen_destroy();
 	ui_new_note_for_word_count_screen_destroy();

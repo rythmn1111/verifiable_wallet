@@ -1,4 +1,5 @@
 #include "wallet_sd.h"
+#include "wallet_encrypt.h"
 #include "esp_sdcard_port.h"
 #include "esp_log.h"
 #include <stdio.h>
@@ -211,6 +212,46 @@ bool wallet_sd_get_public_address(char *buf, size_t buf_size)
 		return false;
 	}
 	return true;
+}
+
+bool wallet_sd_read_encrypted_jwk(char *salt_hex, size_t salt_hex_size,
+                                  char *iv_hex, size_t iv_hex_size,
+                                  char *ct_b64, size_t ct_b64_size)
+{
+	if (!esp_sdcard_port_is_mounted() || !salt_hex || !iv_hex || !ct_b64)
+		return false;
+	/* Need +2 so fgets consumes newline (32+1 salt, 24+1 iv) */
+	if (salt_hex_size < (WALLET_ENCRYPT_SALT_HEX_LEN + 2) ||
+	    iv_hex_size < (WALLET_ENCRYPT_IV_HEX_LEN + 2) ||
+	    ct_b64_size < 100)
+		return false;
+	FILE *f = fopen(WALLET_JWK_FILE, "r");
+	if (!f)
+		return false;
+	char line_buf[256];
+	bool ok = false;
+	if (!fgets(line_buf, sizeof(line_buf), f))
+		goto out;
+	if (strstr(line_buf, "v1") != line_buf)
+		goto out;
+	/* fgets with size N reads at most N-1 chars + null; use size so newline is consumed */
+	if (!fgets(salt_hex, (size_t)salt_hex_size, f))
+		goto out;
+	if (!fgets(iv_hex, (size_t)iv_hex_size, f))
+		goto out;
+	if (!fgets(ct_b64, (size_t)ct_b64_size, f))
+		goto out;
+	/* Trim trailing newline/cr so hex strings are exact length */
+	for (char *p = salt_hex; *p; p++)
+		if (*p == '\n' || *p == '\r') { *p = '\0'; break; }
+	for (char *p = iv_hex; *p; p++)
+		if (*p == '\n' || *p == '\r') { *p = '\0'; break; }
+	for (char *p = ct_b64; *p; p++)
+		if (*p == '\n' || *p == '\r') { *p = '\0'; break; }
+	ok = true;
+out:
+	fclose(f);
+	return ok;
 }
 
 static bool file_readable(const char *path)
