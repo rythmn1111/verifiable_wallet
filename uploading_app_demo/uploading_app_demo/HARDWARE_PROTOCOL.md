@@ -26,7 +26,7 @@
 - **Content (JSON):**  
   `{ "v": 1, "hash": "<base64url-48-bytes>" }`
 - **`hash`:** Base64url-encoded 48-byte SHA-384 deep hash of the data item (ANS-104 deep hash of `["dataitem","1", signatureType, rawOwner, rawTarget, rawAnchor, rawTags, fileStream]`).
-- **Device:** Decode `hash` from base64url, then sign those 48 bytes with the Arweave JWK (RSA-PSS 4096). Result is a **512-byte** signature.
+- **Device:** Decode `hash` from base64url, compute **SHA-256**(hash) to get 32 bytes, then sign with the Arweave JWK using **RSA-PSS with SHA-256** (to match arbundles/gateway). Result is a **512-byte** signature.
 
 ---
 

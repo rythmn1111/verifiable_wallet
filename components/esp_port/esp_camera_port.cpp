@@ -1,7 +1,10 @@
 
+#include "esp_camera_port.h"
 #include "esp_camera.h"
 #include "driver/i2c_master.h"
+#include "esp_err.h"
 
+static bool s_camera_inited = false;
 
 #define PWDN_GPIO_NUM -1
 #define RESET_GPIO_NUM -1
@@ -47,23 +50,80 @@ void esp_camera_port_init(i2c_port_num_t i2c_port)
     config.pin_pwdn = PWDN_GPIO_NUM;
     config.pin_reset = RESET_GPIO_NUM;
     config.xclk_freq_hz = 20000000;
-    /* Standard esp32-camera has no FRAMESIZE_320X480; use HVGA (480x320). For native 320x480 use board's esp32-camera. */
     config.frame_size = FRAMESIZE_HVGA;
-    config.pixel_format = PIXFORMAT_RGB565; // for streaming
-    // config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
+    config.pixel_format = PIXFORMAT_RGB565;
     config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
     config.fb_location = CAMERA_FB_IN_PSRAM;
     config.jpeg_quality = 12;
     config.fb_count = 1;
 
     esp_err_t err = esp_camera_init(&config);
-    
-
-    if (err != ESP_OK)
-    {
+    if (err != ESP_OK) {
         printf("Camera init failed with error 0x%x", err);
         return;
     }
     sensor_t *s = esp_camera_sensor_get();
-    s->set_vflip(s, 1);
+    if (s) s->set_vflip(s, 1);
+}
+
+static int camera_init_with_config(framesize_t frame_size)
+{
+    camera_config_t config;
+    config.ledc_channel = CAM_LEDC_CHANNEL;
+    config.ledc_timer = CAM_LEDC_TIMER;
+    config.pin_d0 = Y2_GPIO_NUM;
+    config.pin_d1 = Y3_GPIO_NUM;
+    config.pin_d2 = Y4_GPIO_NUM;
+    config.pin_d3 = Y5_GPIO_NUM;
+    config.pin_d4 = Y6_GPIO_NUM;
+    config.pin_d5 = Y7_GPIO_NUM;
+    config.pin_d6 = Y8_GPIO_NUM;
+    config.pin_d7 = Y9_GPIO_NUM;
+    config.pin_xclk = XCLK_GPIO_NUM;
+    config.pin_pclk = PCLK_GPIO_NUM;
+    config.pin_vsync = VSYNC_GPIO_NUM;
+    config.pin_href = HREF_GPIO_NUM;
+    config.pin_sccb_sda = -1;
+    config.pin_sccb_scl = -1;
+    config.sccb_i2c_port = 0;
+    config.pin_pwdn = PWDN_GPIO_NUM;
+    config.pin_reset = RESET_GPIO_NUM;
+    config.xclk_freq_hz = 20000000;
+    config.frame_size = frame_size;
+    config.pixel_format = PIXFORMAT_RGB565;
+    config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
+    config.fb_location = CAMERA_FB_IN_PSRAM;
+    config.jpeg_quality = 12;
+    config.fb_count = 1;
+
+    esp_err_t err = esp_camera_init(&config);
+    if (err != ESP_OK) {
+        return -1;
+    }
+    sensor_t *s = esp_camera_sensor_get();
+    if (s) s->set_vflip(s, 1);
+    return 0;
+}
+
+extern "C" int esp_camera_port_init_c(int i2c_port_num)
+{
+    (void)i2c_port_num;
+    if (s_camera_inited) {
+        return 0;
+    }
+    /* Try 240x240 first (like qrcode-implementation demo) to reduce PSRAM; fallback to QVGA if sensor doesn't support it. */
+    if (camera_init_with_config(FRAMESIZE_240X240) == 0) {
+        s_camera_inited = true;
+        return 0;
+    }
+    if (camera_init_with_config(FRAMESIZE_QVGA) == 0) {
+        s_camera_inited = true;
+        return 0;
+    }
+    return -1;
+}
+
+extern "C" bool esp_camera_port_is_inited(void)
+{
+    return s_camera_inited;
 }

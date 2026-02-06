@@ -77,6 +77,17 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 2.7.0
+  espressif/quirc:
+    component_hash: 
+      3be250a06364f0d71a7903b66ac93084d2ce3998c2e75a168b9f1f0621dd6218
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.3.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.2.0
   idf:
     source:
       type: idf
@@ -94,8 +105,9 @@ direct_dependencies:
 - espressif/esp_io_expander_tca9554
 - espressif/esp_lcd_touch
 - espressif/esp_lvgl_port
+- espressif/quirc
 - idf
 - lvgl/lvgl
-manifest_hash: f656b6c56e63d7bce0c385f9f2e01d3ea781eabf4ea159d9eeff16f41232ffc8
+manifest_hash: 2f9fae9a927a81f8714db3be99a95ca53e7dba1a0efee7fd7be29efc387aec8e
 target: esp32s3
 version: 2.0.0

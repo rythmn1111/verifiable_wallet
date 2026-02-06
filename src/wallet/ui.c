@@ -55,6 +55,9 @@ void ui_destroy( void )
 	ui_owner_qr_screen_screen_destroy();
 	ui_export_key_screen_screen_destroy();
 	ui_wallet_exists_screen_screen_destroy();
+	ui_sign_tx_scan_screen_screen_destroy();
+	ui_sign_tx_password_screen_screen_destroy();
+	ui_sign_tx_signature_qr_screen_screen_destroy();
 	ui_note_for_words_screen_screen_destroy();
 	ui_new_note_for_word_count_screen_destroy();
 	ui_word_count_screen_destroy();

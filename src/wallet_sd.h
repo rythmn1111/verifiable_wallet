@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Base path for wallet on SD (FAT mounted at /sdcard). */
 #define WALLET_SD_DIR        "/sdcard/wallet"
 #define WALLET_WORDS_FILE    "/sdcard/wallet/words.txt"
@@ -10,6 +14,29 @@
 #define WALLET_ADDRESS_FILE  "/sdcard/wallet/address.txt"
 #define WALLET_OWNER_FILE    "/sdcard/wallet/owner.txt"  /* 512-byte owner base64url for Upload public QR */
 #define WALLET_FLAG_FILE     "/sdcard/wallet/flag"
+
+/** Scanned hash from Sign Tx (camera) to be signed in wallet UI. Deleted after user completes sign flow. */
+#define WALLET_TEMP_SIG_FILE "/sdcard/temp_sig"
+
+/**
+ * Return true if temp_sig file exists (pending hash from scanner to sign).
+ */
+bool wallet_sd_temp_sig_exists(void);
+
+/**
+ * Read hash from temp_sig into buf (max buf_size-1 chars + null). Returns true if read ok.
+ */
+bool wallet_sd_temp_sig_read(char *buf, size_t buf_size);
+
+/**
+ * Write hash string to temp_sig (e.g. after boot when NVS had scanner result).
+ */
+bool wallet_sd_temp_sig_write(const char *hash_str);
+
+/**
+ * Delete temp_sig file. Call when user is done with sign flow (e.g. left signature QR screen).
+ */
+void wallet_sd_temp_sig_delete(void);
 
 /**
  * Save wallet to SD card: creates WALLET_SD_DIR, writes words to words.txt,
@@ -74,3 +101,7 @@ bool wallet_sd_exists(void);
  * Returns true if removal succeeded (or nothing was there). Safe to call without SD mounted (returns false).
  */
 bool wallet_sd_delete(void);
+
+#ifdef __cplusplus
+}
+#endif

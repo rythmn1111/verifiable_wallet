@@ -99,6 +99,12 @@ export async function buildSignedDataItemStream(
   signatureBytes: Uint8Array,
   file: File
 ): Promise<{ stream: ReadableStream<Uint8Array>; size: number }> {
+  if (signatureBytes.length !== ARWEAVE_SIGNATURE_LENGTH) {
+    throw new Error(
+      `Signature must be exactly ${ARWEAVE_SIGNATURE_LENGTH} bytes (got ${signatureBytes.length}). ` +
+        'Ensure the full signature QR was scanned and the device uses RSA-PSS SHA-256.'
+    );
+  }
   await header.setSignature(Buffer.from(signatureBytes));
   const headerBytes = header.getRaw();
   const headerLen = headerBytes.byteLength;

@@ -343,6 +343,57 @@ bool wallet_sd_exists(void)
 	return false;
 }
 
+bool wallet_sd_temp_sig_exists(void)
+{
+	if (!esp_sdcard_port_is_mounted()) return false;
+	FILE *f = fopen(WALLET_TEMP_SIG_FILE, "r");
+	if (!f) return false;
+	fclose(f);
+	return true;
+}
+
+bool wallet_sd_temp_sig_read(char *buf, size_t buf_size)
+{
+	if (!esp_sdcard_port_is_mounted() || !buf || buf_size == 0) return false;
+	FILE *f = fopen(WALLET_TEMP_SIG_FILE, "r");
+	if (!f) return false;
+	size_t n = fread(buf, 1, buf_size - 1, f);
+	fclose(f);
+	buf[n] = '\0';
+	for (size_t i = 0; i < n; i++) {
+		if (buf[i] == '\n' || buf[i] == '\r') {
+			buf[i] = '\0';
+			break;
+		}
+	}
+	return n > 0;
+}
+
+bool wallet_sd_temp_sig_write(const char *hash_str)
+{
+	if (!esp_sdcard_port_is_mounted() || !hash_str) return false;
+	FILE *f = fopen(WALLET_TEMP_SIG_FILE, "w");
+	if (!f) {
+		ESP_LOGW(TAG, "temp_sig write failed: %s", strerror(errno));
+		return false;
+	}
+	if (fputs(hash_str, f) < 0) {
+		fclose(f);
+		return false;
+	}
+	if (fclose(f) != 0) return false;
+	ESP_LOGI(TAG, "temp_sig written");
+	return true;
+}
+
+void wallet_sd_temp_sig_delete(void)
+{
+	if (!esp_sdcard_port_is_mounted()) return;
+	if (remove(WALLET_TEMP_SIG_FILE) == 0)
+		ESP_LOGI(TAG, "temp_sig deleted");
+	/* ignore ENOENT */
+}
+
 bool wallet_sd_delete(void)
 {
 	if (!esp_sdcard_port_is_mounted()) {

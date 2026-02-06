@@ -8,8 +8,14 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "freertos/queue.h"
 #include "driver/i2c_master.h"
 
+#include "boot_mode.h"
+#include "esp_camera.h"
+#include "esp_camera_port.h"
+#include "qr_decoder.h"
+#include "esp_heap_caps.h"
 #include "esp_netif.h"
 #include "esp_event.h"
 #include "esp_wifi.h"
@@ -32,6 +38,8 @@
 #include "screens/ui_Screen2.h"
 #include "screens/ui_Screen3.h"
 #include "screens/ui_wifi_password_screen.h"
+#include "screens/ui_sign_tx_password_screen.h"
+#include "wallet_sd.h"
 #include "app_wifi.h"
 
 #define EXAMPLE_PIN_I2C_SDA   GPIO_NUM_8
@@ -61,6 +69,11 @@ static lv_display_t *s_lvgl_disp = NULL;
 static void i2c_bus_init(void);
 static void io_expander_init(void);
 static void lv_port_init(void);
+/** Scanner mode: display + camera + QR; on done saves result and reboots. Never returns. */
+static void run_scanner_mode(void);
+
+/** Wallet path: after boot, if scanner just finished with success, hash is here until we show password screen. */
+static char s_pending_sign_tx_hash[SIGN_TX_HASH_MAX];
 
 /* Wi-Fi scan (lazy init, one-shot task) */
 static bool s_wifi_inited = false;
@@ -158,13 +171,34 @@ extern "C" void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    /* SD card: init and log result; used for WiFi creds persistence */
+    /* One firmware, two modes: scanner runs minimal UI then reboots; wallet runs full UI. */
+    if (boot_mode_is_scanner()) {
+        boot_mode_set_wallet();
+        run_scanner_mode();
+        /* never returns */
+    }
+
+    /* Wallet path: read sign_tx result from scanner (if it just ran with success). */
+    s_pending_sign_tx_hash[0] = '\0';
+    {
+        size_t pending_len = 0;
+        (void)sign_tx_get_result(s_pending_sign_tx_hash, sizeof(s_pending_sign_tx_hash), &pending_len);
+    }
+
+    /* SD card: init and log result; used for WiFi creds and temp_sig (pending hash to sign). */
     s_last_ssid[0] = s_last_password[0] = '\0';
     if (esp_sdcard_port_init()) {
         ESP_LOGI(TAG, "SD card: detected and mounted");
     } else {
         ESP_LOGI(TAG, "SD card: not detected or mount failed");
     }
+
+    /* If scanner just finished with success, save hash to SD temp_sig so user can tap Sign Tx to sign. */
+    if (s_pending_sign_tx_hash[0] != '\0' && esp_sdcard_port_is_mounted()) {
+        wallet_sd_temp_sig_write(s_pending_sign_tx_hash);
+        sign_tx_clear_result();
+    }
+    s_pending_sign_tx_hash[0] = '\0';
 
     i2c_bus_init();
     io_expander_init();
@@ -217,6 +251,198 @@ extern "C" void app_main(void)
     }
 
     ESP_LOGI(TAG, "Ready. Wallet3 UI.");
+}
+
+/* --- Scanner mode (one firmware, two modes): display + camera + QR; on done reboot. --- */
+#define SCAN_PREVIEW_W      240
+#define SCAN_PREVIEW_H      240
+#define SCAN_PREVIEW_ROW    (SCAN_PREVIEW_W * 2)
+#define SCAN_QUEUE_LEN      2
+#define SCAN_TASK_STACK     (24 * 1024)
+#define SCAN_HASH_BUF_SIZE  256
+/* Max frame size for packed copy (decoder expects contiguous rows). */
+#define SCAN_DECODE_MAX_W   320
+#define SCAN_DECODE_MAX_H   240
+#define SCAN_DECODE_BUF_SIZE ((size_t)SCAN_DECODE_MAX_W * SCAN_DECODE_MAX_H * 2u)
+
+static QueueHandle_t s_scan_queue = NULL;
+static uint8_t *s_scan_decode_buf = NULL;  /* packed RGB565 for QR decode (handles camera stride) */
+static char s_scan_decoded_hash[SCAN_HASH_BUF_SIZE];
+/** Double-buffer: task writes to buf[write_idx], then swaps; timer reads from buf[1-write_idx] to avoid tearing. */
+static uint8_t *s_scan_preview_buf[2] = { NULL, NULL };
+static volatile int s_scan_preview_write_idx = 0;
+static uint8_t *s_scan_canvas_buf = NULL;
+static lv_obj_t *s_scan_canvas = NULL;
+static volatile bool s_scan_preview_dirty = false;
+static lv_timer_t *s_scan_poll_timer = NULL;
+static TaskHandle_t s_scan_task_handle = NULL;
+static int s_scanner_cam_ok = -1;
+
+static void scanner_task(void *pv)
+{
+    (void)pv;
+    if (s_scanner_cam_ok != 0) {
+        uint32_t msg = 1;
+        xQueueSend(s_scan_queue, &msg, 0);
+        vTaskDelete(NULL);
+        return;
+    }
+    char decode_buf[SCAN_HASH_BUF_SIZE];
+    while (1) {
+        camera_fb_t *fb = esp_camera_fb_get();
+        if (!fb) {
+            vTaskDelay(pdMS_TO_TICKS(50));
+            continue;
+        }
+        uint8_t *dst = s_scan_preview_buf[s_scan_preview_write_idx];
+        if (dst && fb->width > 0 && fb->height > 0) {
+            int cw = (fb->width <= SCAN_PREVIEW_W) ? fb->width : SCAN_PREVIEW_W;
+            int ch = (fb->height <= SCAN_PREVIEW_H) ? fb->height : SCAN_PREVIEW_H;
+            size_t src_stride = (size_t)fb->width * 2u;
+            /* Copy with byte-swap per pixel so preview matches display (LCD expects swap_bytes). */
+            for (int y = 0; y < ch; y++) {
+                const uint8_t *src_row = fb->buf + (size_t)y * src_stride;
+                uint8_t *dst_row = dst + (size_t)y * SCAN_PREVIEW_ROW;
+                for (int x = 0; x < cw; x++) {
+                    uint16_t px = (uint16_t)src_row[x * 2] | ((uint16_t)src_row[x * 2 + 1] << 8);
+                    px = (px >> 8) | (px << 8);
+                    dst_row[x * 2] = (uint8_t)(px & 0xff);
+                    dst_row[x * 2 + 1] = (uint8_t)(px >> 8);
+                }
+            }
+            s_scan_preview_write_idx = 1 - s_scan_preview_write_idx;
+            s_scan_preview_dirty = true;
+        }
+        /* Decoder expects contiguous rows; camera DMA may use a different stride. Copy to packed buffer. */
+        bool ok = false;
+        if (s_scan_decode_buf && fb->width > 0 && fb->height > 0 &&
+            (size_t)fb->width <= SCAN_DECODE_MAX_W && (size_t)fb->height <= SCAN_DECODE_MAX_H) {
+            size_t src_stride = ((size_t)fb->width * 2u);
+            if (fb->len > 0 && (size_t)fb->height > 0) {
+                size_t stride_from_len = fb->len / (size_t)fb->height;
+                if (stride_from_len >= src_stride)
+                    src_stride = stride_from_len;
+            }
+            size_t row_bytes = (size_t)fb->width * 2u;
+            for (int y = 0; y < fb->height; y++)
+                memcpy(s_scan_decode_buf + (size_t)y * row_bytes,
+                       fb->buf + (size_t)y * src_stride, row_bytes);
+            ok = qr_decoder_decode_rgb565(s_scan_decode_buf, fb->width, fb->height, decode_buf, sizeof(decode_buf));
+        } else {
+            ok = qr_decoder_decode_rgb565(fb->buf, fb->width, fb->height, decode_buf, sizeof(decode_buf));
+        }
+        esp_camera_fb_return(fb);
+        if (ok && decode_buf[0] != '\0') {
+            size_t len = strnlen(decode_buf, sizeof(s_scan_decoded_hash) - 1);
+            if (len > 0) {
+                memcpy(s_scan_decoded_hash, decode_buf, len + 1);
+                uint32_t msg = 0;
+                xQueueSend(s_scan_queue, &msg, 0);
+            }
+            vTaskDelete(NULL);
+            return;
+        }
+        vTaskDelay(pdMS_TO_TICKS(30));
+    }
+}
+
+static void scanner_poll_timer_cb(lv_timer_t *t)
+{
+    (void)t;
+    if (!s_scan_queue) return;
+    /* Copy from the buffer we're not currently writing to (last complete frame). */
+    uint8_t *src = s_scan_preview_buf[1 - s_scan_preview_write_idx];
+    if (s_scan_preview_dirty && s_scan_canvas_buf && src && s_scan_canvas) {
+        for (int y = 0; y < SCAN_PREVIEW_H; y++)
+            memcpy(s_scan_canvas_buf + (size_t)y * SCAN_PREVIEW_ROW, src + (size_t)y * SCAN_PREVIEW_ROW, SCAN_PREVIEW_ROW);
+        s_scan_preview_dirty = false;
+        lv_obj_invalidate(s_scan_canvas);
+    }
+    uint32_t msg;
+    if (xQueueReceive(s_scan_queue, &msg, 0) != pdPASS) return;
+    if (s_scan_poll_timer) { lv_timer_del(s_scan_poll_timer); s_scan_poll_timer = NULL; }
+    s_scan_task_handle = NULL;
+    if (msg == 1) {
+        sign_tx_save_cancelled();
+        esp_restart();
+    }
+    sign_tx_save_success(s_scan_decoded_hash);
+    esp_restart();
+}
+
+static void scanner_cancel_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_CLICKED) return;
+    sign_tx_save_cancelled();
+    esp_restart();
+}
+
+static void run_scanner_mode(void)
+{
+    ESP_LOGI(TAG, "Scanner mode: init display + camera + QR");
+    i2c_bus_init();
+    io_expander_init();
+    esp_3inch5_display_port_init(&s_io_handle, &s_panel_handle, LCD_BUFFER_SIZE);
+    esp_3inch5_touch_port_init(&s_touch_handle, s_i2c_bus, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES, EXAMPLE_DISPLAY_ROTATION);
+    vTaskDelay(pdMS_TO_TICKS(100));
+    esp_3inch5_brightness_port_init();
+    esp_3inch5_brightness_port_set(80);
+    lv_port_init();
+
+    vTaskDelay(pdMS_TO_TICKS(200));
+    s_scanner_cam_ok = esp_camera_port_init_c(0);
+
+    s_scan_queue = xQueueCreate(SCAN_QUEUE_LEN, sizeof(uint32_t));
+    s_scan_decoded_hash[0] = '\0';
+    s_scan_decode_buf = (uint8_t *)heap_caps_malloc(SCAN_DECODE_BUF_SIZE, MALLOC_CAP_SPIRAM);
+
+    lv_obj_t *scan_screen = lv_obj_create(NULL);
+    lv_obj_remove_flag(scan_screen, LV_OBJ_FLAG_SCROLLABLE);
+    const lv_style_selector_t sel = (lv_style_selector_t)((int)LV_PART_MAIN | (int)LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(scan_screen, lv_color_hex(0x88BF6C), sel);
+    lv_obj_set_style_bg_opa(scan_screen, LV_OPA_COVER, sel);
+
+    lv_obj_t *scan_title = lv_label_create(scan_screen);
+    lv_obj_set_width(scan_title, 280);
+    lv_obj_set_align(scan_title, LV_ALIGN_TOP_MID);
+    lv_obj_set_y(scan_title, 12);
+    lv_label_set_text(scan_title, "Sign Tx - Scan hash QR");
+    lv_obj_set_style_text_align(scan_title, LV_TEXT_ALIGN_CENTER, sel);
+
+    size_t canvas_size = (size_t)SCAN_PREVIEW_ROW * SCAN_PREVIEW_H;
+    s_scan_preview_buf[0] = (uint8_t *)heap_caps_malloc((size_t)SCAN_PREVIEW_ROW * SCAN_PREVIEW_H, MALLOC_CAP_SPIRAM);
+    s_scan_preview_buf[1] = (uint8_t *)heap_caps_malloc((size_t)SCAN_PREVIEW_ROW * SCAN_PREVIEW_H, MALLOC_CAP_SPIRAM);
+    s_scan_canvas_buf = (uint8_t *)heap_caps_malloc(canvas_size, MALLOC_CAP_SPIRAM);
+    if (s_scan_canvas_buf && s_scan_preview_buf[0] && s_scan_preview_buf[1]) {
+        for (int y = 0; y < SCAN_PREVIEW_H; y++) {
+            uint16_t *row = (uint16_t *)(s_scan_canvas_buf + (size_t)y * SCAN_PREVIEW_ROW);
+            for (int x = 0; x < SCAN_PREVIEW_W; x++) row[x] = 0x3186;
+        }
+        s_scan_canvas = lv_canvas_create(scan_screen);
+        lv_canvas_set_buffer(s_scan_canvas, s_scan_canvas_buf, SCAN_PREVIEW_W, SCAN_PREVIEW_H, LV_COLOR_FORMAT_RGB565);
+        lv_obj_set_width(s_scan_canvas, SCAN_PREVIEW_W);
+        lv_obj_set_height(s_scan_canvas, SCAN_PREVIEW_H);
+        lv_obj_set_align(s_scan_canvas, LV_ALIGN_TOP_MID);
+        lv_obj_set_y(s_scan_canvas, 36);
+    }
+
+    lv_obj_t *scan_cancel_btn = lv_btn_create(scan_screen);
+    lv_obj_set_width(scan_cancel_btn, 120);
+    lv_obj_set_height(scan_cancel_btn, 48);
+    lv_obj_set_align(scan_cancel_btn, LV_ALIGN_BOTTOM_MID);
+    lv_obj_set_y(scan_cancel_btn, -24);
+    lv_obj_t *cancel_label = lv_label_create(scan_cancel_btn);
+    lv_label_set_text(cancel_label, "Cancel");
+    lv_obj_center(cancel_label);
+
+    lv_obj_add_event_cb(scan_cancel_btn, scanner_cancel_cb, LV_EVENT_CLICKED, NULL);
+
+    s_scan_poll_timer = lv_timer_create(scanner_poll_timer_cb, 200, NULL);
+    lv_scr_load(scan_screen);
+    xTaskCreatePinnedToCore(scanner_task, "scan", SCAN_TASK_STACK, NULL, 3, &s_scan_task_handle, 1);
+
+    for (;;)
+        vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 static void i2c_bus_init(void)
@@ -555,6 +781,7 @@ static void price_fetch_task(void *arg)
             if (lvgl_port_lock(pdMS_TO_TICKS(1000))) {
                 ui_Screen1_set_prices(ao_str[0] ? ao_str : NULL, ar_str[0] ? ar_str : NULL);
                 lvgl_port_unlock();
+                vTaskDelay(pdMS_TO_TICKS(20)); /* yield so LVGL/IDLE can run and watchdog is fed */
             }
         }
     } else {
