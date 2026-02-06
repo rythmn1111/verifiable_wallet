@@ -106,3 +106,30 @@ int wallet_address_from_jwk(const char *jwk_json, char *address_buf, size_t addr
 	memcpy(address_buf, b64_buf, addr_len + 1);
 	return 0;
 }
+
+int wallet_owner_b64url_from_jwk(const char *jwk_json, char *owner_buf, size_t owner_buf_size)
+{
+	if (!jwk_json || !owner_buf || owner_buf_size < 512)
+		return -1;
+
+	const char *n_key = "\"n\":\"";
+	const char *p = strstr(jwk_json, n_key);
+	if (!p) {
+		ESP_LOGE(TAG, "JWK missing 'n'");
+		return -2;
+	}
+	p += strlen(n_key);
+	const char *end = strchr(p, '"');
+	if (!end || end <= p) {
+		ESP_LOGE(TAG, "JWK invalid n value");
+		return -3;
+	}
+	size_t n_len = (size_t)(end - p);
+	if (n_len >= owner_buf_size) {
+		ESP_LOGE(TAG, "n value too long %u", (unsigned)n_len);
+		return -4;
+	}
+	memcpy(owner_buf, p, n_len);
+	owner_buf[n_len] = '\0';
+	return 0;
+}

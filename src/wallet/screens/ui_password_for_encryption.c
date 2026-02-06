@@ -8,6 +8,7 @@
 #include "wallet_address_pending.h"
 #include "wallet_encrypt.h"
 #include "wallet_sd.h"
+#include "wallet_address.h"
 #include "arweave_wallet_gen.h"
 #include <string.h>
 #include <stdio.h>
@@ -108,6 +109,12 @@ static void do_submit(void)
 			show_msg("Address save failed");
 			return;
 		}
+	}
+	/* Save 512-byte owner (base64url) for Upload public QR - no password, same time as address */
+	{
+		static char owner_b64[720];
+		if (wallet_owner_b64url_from_jwk(jwk_buf, owner_b64, sizeof(owner_b64)) == 0)
+			wallet_sd_save_owner_b64url(owner_b64);
 	}
 	wallet_address_pending_clear();
 	wallet_jwk_pending_clear();

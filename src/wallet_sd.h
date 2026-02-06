@@ -8,6 +8,7 @@
 #define WALLET_WORDS_FILE    "/sdcard/wallet/words.txt"
 #define WALLET_JWK_FILE      "/sdcard/wallet/jwk.txt"
 #define WALLET_ADDRESS_FILE  "/sdcard/wallet/address.txt"
+#define WALLET_OWNER_FILE    "/sdcard/wallet/owner.txt"  /* 512-byte owner base64url for Upload public QR */
 #define WALLET_FLAG_FILE     "/sdcard/wallet/flag"
 
 /**
@@ -42,6 +43,18 @@ bool wallet_sd_save_public_address(const char *address);
 bool wallet_sd_get_public_address(char *buf, size_t buf_size);
 
 /**
+ * Save 512-byte owner (base64url string, ~684 chars) to owner.txt.
+ * Call when saving the wallet (same time as address). No encryption.
+ */
+bool wallet_sd_save_owner_b64url(const char *owner_b64url);
+
+/**
+ * Read owner base64url from owner.txt into buf (at least 720 bytes recommended).
+ * Returns true if read succeeded; false if file missing or too small.
+ */
+bool wallet_sd_get_owner_b64url(char *buf, size_t buf_size);
+
+/**
  * Read encrypted JWK from jwk.txt (format: v1\nsalt_hex\niv_hex\nct_b64).
  * Buffers must be at least: salt_hex 34, iv_hex 26 (to consume newlines), ct_b64 >= 8192 recommended.
  * Returns true if read succeeded and first line is "v1"; false otherwise.
@@ -57,7 +70,7 @@ bool wallet_sd_read_encrypted_jwk(char *salt_hex, size_t salt_hex_size,
 bool wallet_sd_exists(void);
 
 /**
- * Delete the stored wallet from SD: remove words.txt, jwk.txt, address.txt, and flag.
+ * Delete the stored wallet from SD: remove words.txt, jwk.txt, address.txt, owner.txt, and flag.
  * Returns true if removal succeeded (or nothing was there). Safe to call without SD mounted (returns false).
  */
 bool wallet_sd_delete(void);

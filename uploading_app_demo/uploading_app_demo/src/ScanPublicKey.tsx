@@ -3,7 +3,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 const SCANNER_CONTAINER_ID = 'qr-reader-public-key';
 
-export function ScanPublicKey() {
+type ScanPublicKeyProps = {
+  onPublicKeyScanned?: (key: string) => void;
+};
+
+export function ScanPublicKey({ onPublicKeyScanned }: ScanPublicKeyProps) {
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,12 +53,13 @@ export function ScanPublicKey() {
         (decodedText) => {
           let key = decodedText.trim();
           try {
-            const parsed = JSON.parse(decodedText) as { publicKey?: string };
+            const parsed = JSON.parse(key) as { publicKey?: string };
             if (parsed.publicKey) key = parsed.publicKey;
           } catch {
             // use raw decoded text as public key
           }
           setPublicKey(key);
+          onPublicKeyScanned?.(key);
           stopScanner();
         },
         () => {}
@@ -74,7 +79,7 @@ export function ScanPublicKey() {
         });
       }
     };
-  }, [scanning, stopScanner]);
+  }, [scanning, stopScanner, onPublicKeyScanned]);
 
   useEffect(() => {
     return () => {

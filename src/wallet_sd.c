@@ -189,6 +189,60 @@ bool wallet_sd_save_public_address(const char *address)
 	return true;
 }
 
+bool wallet_sd_save_owner_b64url(const char *owner_b64url)
+{
+	if (!esp_sdcard_port_is_mounted()) {
+		ESP_LOGE(TAG, "SD not mounted");
+		return false;
+	}
+	if (!owner_b64url || strlen(owner_b64url) < 512) {
+		ESP_LOGE(TAG, "invalid owner (base64url too short)");
+		return false;
+	}
+	if (!ensure_wallet_dir())
+		return false;
+
+	FILE *f = fopen(WALLET_OWNER_FILE, "w");
+	if (!f) {
+		ESP_LOGE(TAG, "fopen %s: %s", WALLET_OWNER_FILE, strerror(errno));
+		return false;
+	}
+	if (fputs(owner_b64url, f) < 0) {
+		ESP_LOGE(TAG, "write owner failed");
+		fclose(f);
+		return false;
+	}
+	if (fclose(f) != 0) {
+		ESP_LOGE(TAG, "fclose owner: %s", strerror(errno));
+		return false;
+	}
+	ESP_LOGI(TAG, "owner (upload public QR) saved to %s", WALLET_OWNER_FILE);
+	return true;
+}
+
+bool wallet_sd_get_owner_b64url(char *buf, size_t buf_size)
+{
+	if (!esp_sdcard_port_is_mounted() || !buf || buf_size < 512)
+		return false;
+	FILE *f = fopen(WALLET_OWNER_FILE, "r");
+	if (!f)
+		return false;
+	size_t n = fread(buf, 1, buf_size - 1, f);
+	fclose(f);
+	if (n == 0) {
+		buf[0] = '\0';
+		return false;
+	}
+	buf[n] = '\0';
+	for (size_t i = 0; i < n; i++) {
+		if (buf[i] == '\n' || buf[i] == '\r') {
+			buf[i] = '\0';
+			break;
+		}
+	}
+	return true;
+}
+
 bool wallet_sd_get_public_address(char *buf, size_t buf_size)
 {
 	if (!esp_sdcard_port_is_mounted() || !buf || buf_size < 44)
@@ -310,6 +364,10 @@ bool wallet_sd_delete(void)
 	}
 	if (remove(WALLET_ADDRESS_FILE) != 0 && errno != ENOENT) {
 		ESP_LOGE(TAG, "remove %s: %s", WALLET_ADDRESS_FILE, strerror(errno));
+		ok = false;
+	}
+	if (remove(WALLET_OWNER_FILE) != 0 && errno != ENOENT) {
+		ESP_LOGE(TAG, "remove %s: %s", WALLET_OWNER_FILE, strerror(errno));
 		ok = false;
 	}
 	if (ok)
