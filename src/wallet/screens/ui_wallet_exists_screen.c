@@ -5,7 +5,6 @@
 #include "ui_Screen2.h"
 #include "ui_public_address_qr_screen.h"
 #include "ui_upload_public_qr_screen.h"
-#include "ui_owner_qr_screen.h"
 #include "ui_export_key_screen.h"
 #include "boot_mode.h"
 #include "ui_sign_tx_password_screen.h"
@@ -17,7 +16,6 @@ static lv_obj_t *s_home_btn = NULL;
 
 #define MENU_ACTION_PUBLIC_KEY     ((void *)1)
 #define MENU_ACTION_UPLOAD_PUBLIC  ((void *)5)
-#define MENU_ACTION_OWNER_QR       ((void *)4)
 #define MENU_ACTION_SIGN_TX        ((void *)6)
 #define MENU_ACTION_EXPORT_KEY     ((void *)2)
 #define MENU_ACTION_DELETE         ((void *)3)
@@ -41,10 +39,6 @@ static void menu_item_cb(lv_event_t *e)
 	}
 	if (action == MENU_ACTION_UPLOAD_PUBLIC) {
 		ui_upload_public_qr_screen_show();
-		return;
-	}
-	if (action == MENU_ACTION_OWNER_QR) {
-		ui_owner_qr_screen_show();
 		return;
 	}
 	if (action == MENU_ACTION_SIGN_TX) {
@@ -120,15 +114,13 @@ void ui_wallet_exists_screen_screen_init(void)
 
 	static const char *items[] = {
 		"Public key",
-		"Upload public QR",
-		"Owner (for signing)",
+		"Full Public Key",
 		"Sign tx",
 		"Export key",
-		"Verify message",
 		"Delete wallet",
 		NULL
 	};
-	static const void *actions[] = { MENU_ACTION_PUBLIC_KEY, MENU_ACTION_UPLOAD_PUBLIC, MENU_ACTION_OWNER_QR, MENU_ACTION_SIGN_TX, MENU_ACTION_EXPORT_KEY, NULL, MENU_ACTION_DELETE };
+	static const void *actions[] = { MENU_ACTION_PUBLIC_KEY, MENU_ACTION_UPLOAD_PUBLIC, MENU_ACTION_SIGN_TX, MENU_ACTION_EXPORT_KEY, MENU_ACTION_DELETE };
 	for (int i = 0; items[i] != NULL; i++) {
 		lv_obj_t *btn = lv_list_add_button(s_menu_list, NULL, items[i]);
 		lv_obj_set_style_text_font(btn, &ui_font_Pixel, (lv_style_selector_t)(LV_PART_MAIN | LV_STATE_DEFAULT));
