@@ -34,12 +34,11 @@ Most wallets are software running inside a browser or OS that you already trust 
 ## Demo
 
 <p align="center">
-  <!-- Replace with actual photos/gif when available -->
   <img src="docs/images/wallet_home.png" width="30%" alt="Wallet Home Screen" />
   &nbsp;&nbsp;
-  <img src="docs/images/wallet_qr.png" width="30%" alt="Public Key QR" />
+  <img src="docs/images/scanner_mode.png" width="30%" alt="Device" />
   &nbsp;&nbsp;
-  <img src="docs/images/scanner_mode.png" width="30%" alt="Scanner Mode" />
+  <img src="docs/images/hardware.png" width="30%" alt="Hardware Enclosure" />
 </p>
 
 ---
